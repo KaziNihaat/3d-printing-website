@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PrintCraft BD — Custom 3D Creations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     CUSTOM CURSOR
+═══════════════════════════════════════════ -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ═══════════════════════════════════════════
+     NAV
+═══════════════════════════════════════════ -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <span class="logo-mark">P</span>
+    <span class="logo-text">PrintCraft<em>BD</em></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#products" data-en="Products" data-bn="পণ্য">Products</a></li>
+    <li><a href="#custom" data-en="Custom Order" data-bn="কাস্টম অর্ডার">Custom Order</a></li>
+    <li><a href="#how" data-en="How It Works" data-bn="কিভাবে কাজ করে">How It Works</a></li>
+    <li><a href="#gallery" data-en="Gallery" data-bn="গ্যালারি">Gallery</a></li>
+  </ul>
+  <div class="nav-controls">
+    <!-- Language Toggle -->
+    <button class="toggle-btn lang-toggle" id="langToggle" aria-label="Toggle language">
+      <span class="toggle-option active" id="langEN">EN</span>
+      <span class="toggle-divider">|</span>
+      <span class="toggle-option" id="langBN">বাং</span>
+    </button>
+    <!-- Theme Toggle -->
+    <button class="toggle-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span class="theme-icon" id="themeIcon">🌙</span>
+    </button>
+    <!-- WhatsApp -->
+    <a href="https://wa.me/8801XXXXXXXXX" target="_blank" class="wa-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span data-en="WhatsApp" data-bn="হোয়াটসঅ্যাপ">WhatsApp</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<section id="hero">
+  <!-- Three.js canvas goes here -->
+  <canvas id="heroCanvas"></canvas>
+
+  <!-- Floating particle grid (CSS) -->
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-pulse"></span>
+      <span data-en="✦ Bangladesh's Premium 3D Print Studio" data-bn="✦ বাংলাদেশের প্রিমিয়াম ৩ডি প্রিন্ট স্টুডিও">✦ Bangladesh's Premium 3D Print Studio</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="title-line" data-en="Custom 3D Creations" data-bn="কাস্টম ৩ডি সৃষ্টি">Custom 3D Creations</span>
+      <span class="title-line accent" data-en="Made Just For You" data-bn="শুধু আপনার জন্য তৈরি">Made Just For You</span>
+    </h1>
+
+    <p class="hero-sub" data-en="Cute toys, couple gifts, and personalized designs — crafted with love in Bangladesh and delivered to your door." data-bn="কিউট খেলনা, কাপল গিফট এবং ব্যক্তিগতকৃত ডিজাইন — বাংলাদেশে ভালোবাসা দিয়ে তৈরি।">
+      Cute toys, couple gifts, and personalized designs — crafted with love in Bangladesh and delivered to your door.
+    </p>
+
+    <div class="hero-btns">
+      <a href="#products" class="btn-primary">
+        <span data-en="Shop Now" data-bn="এখনই কিনুন">Shop Now</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#custom" class="btn-ghost">
+        <span data-en="Customize Your Design" data-bn="আপনার ডিজাইন কাস্টমাইজ করুন">Customize Your Design</span>
+      </a>
+    </div>
+
+    <!-- Floating 3D object labels -->
+    <div class="hero-labels">
+      <div class="obj-label" id="label-dragon" style="--lx:72%;--ly:28%">
+        <span class="label-dot"></span>
+        <span data-en="Dragon" data-bn="ড্রাগন">Dragon</span>
+      </div>
+      <div class="obj-label" id="label-elephant" style="--lx:20%;--ly:55%">
+        <span class="label-dot"></span>
+        <span data-en="Elephant" data-bn="হাতি">Elephant</span>
+      </div>
+      <div class="obj-label" id="label-figure" style="--lx:78%;--ly:65%">
+        <span class="label-dot"></span>
+        <span data-en="Action Figure" data-bn="অ্যাকশন ফিগার">Action Figure</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span data-en="Scroll" data-bn="স্ক্রোল করুন">Scroll</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PRODUCT SHOWCASE
+═══════════════════════════════════════════ -->
+<section id="products">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag" data-en="What We Create" data-bn="আমরা যা তৈরি করি">What We Create</span>
+      <h2 data-en="Explore Our <em>Collections</em>" data-bn="আমাদের <em>কালেকশন</em> দেখুন">Explore Our <em>Collections</em></h2>
+      <p data-en="Every piece is printed with precision and passion." data-bn="প্রতিটি পিস নিখুঁততা ও আবেগ দিয়ে তৈরি।">Every piece is printed with precision and passion.</p>
+    </div>
+
+    <div class="product-categories">
+      <!-- Cute Toys -->
+      <div class="cat-card" data-delay="0">
+        <div class="cat-card-inner">
+          <div class="cat-visual toys">
+            <div class="cat-3d-scene" id="scene-toys"></div>
+            <div class="cat-glow"></div>
+          </div>
+          <div class="cat-info">
+            <span class="cat-count" data-en="24+ designs" data-bn="২৪+ ডিজাইন">24+ designs</span>
+            <h3 data-en="Cute Toys" data-bn="কিউট খেলনা">Cute Toys</h3>
+            <p data-en="Dragons, animals, fantasy creatures — designed to delight." data-bn="ড্রাগন, প্রাণী, ফ্যান্টাসি — মন মাতানো ডিজাইন।">Dragons, animals, fantasy creatures — designed to delight.</p>
+            <a href="#custom" class="cat-link">
+              <span data-en="Explore" data-bn="দেখুন">Explore</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Couple Gifts -->
+      <div class="cat-card" data-delay="100">
+        <div class="cat-card-inner">
+          <div class="cat-visual couple">
+            <div class="cat-3d-scene" id="scene-couple"></div>
+            <div class="cat-glow"></div>
+          </div>
+          <div class="cat-info">
+            <span class="cat-count" data-en="18+ designs" data-bn="১৮+ ডিজাইন">18+ designs</span>
+            <h3 data-en="Couple Gifts" data-bn="কাপল গিফট">Couple Gifts</h3>
+            <p data-en="Personalized figurines and keepsakes for the ones you love." data-bn="প্রিয়জনের জন্য ব্যক্তিগতকৃত ফিগারিন।">Personalized figurines and keepsakes for the ones you love.</p>
+            <a href="#custom" class="cat-link">
+              <span data-en="Explore" data-bn="দেখুন">Explore</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keychains -->
+      <div class="cat-card" data-delay="200">
+        <div class="cat-card-inner">
+          <div class="cat-visual keychains">
+            <div class="cat-3d-scene" id="scene-key"></div>
+            <div class="cat-glow"></div>
+          </div>
+          <div class="cat-info">
+            <span class="cat-count" data-en="40+ designs" data-bn="৪০+ ডিজাইন">40+ designs</span>
+            <h3 data-en="Keychains" data-bn="কীচেইন">Keychains</h3>
+            <p data-en="Tiny, detailed, and totally unique. The perfect everyday carry." data-bn="ছোট, বিস্তারিত এবং সম্পূর্ণ অনন্য।">Tiny, detailed, and totally unique. The perfect everyday carry.</p>
+            <a href="#custom" class="cat-link">
+              <span data-en="Explore" data-bn="দেখুন">Explore</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Figures -->
+      <div class="cat-card" data-delay="300">
+        <div class="cat-card-inner">
+          <div class="cat-visual figures">
+            <div class="cat-3d-scene" id="scene-fig"></div>
+            <div class="cat-glow"></div>
+          </div>
+          <div class="cat-info">
+            <span class="cat-count" data-en="12+ designs" data-bn="১২+ ডিজাইন">12+ designs</span>
+            <h3 data-en="Action Figures" data-bn="অ্যাকশন ফিগার">Action Figures</h3>
+            <p data-en="Heroes, warriors, and characters — brought to life in stunning 3D." data-bn="হিরো, যোদ্ধা এবং চরিত্র — চমৎকার ৩ডিতে।">Heroes, warriors, and characters — brought to life in stunning 3D.</p>
+            <a href="#custom" class="cat-link">
+              <span data-en="Explore" data-bn="দেখুন">Explore</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CUSTOM ORDER
+═══════════════════════════════════════════ -->
+<section id="custom">
+  <div class="container">
+    <div class="custom-layout">
+      <div class="custom-left">
+        <span class="section-tag" data-en="Build Yours" data-bn="আপনারটি তৈরি করুন">Build Yours</span>
+        <h2 data-en="Your Imagination, <em>Our Printer</em>" data-bn="আপনার কল্পনা, <em>আমাদের প্রিন্টার</em>">Your Imagination, <em>Our Printer</em></h2>
+        <p data-en="Describe your dream design or upload a reference image. Our team will bring it to life with precision and care." data-bn="আপনার স্বপ্নের ডিজাইন বর্ণনা করুন বা রেফারেন্স ছবি আপলোড করুন।">Describe your dream design or upload a reference image. Our team will bring it to life with precision and care.</p>
+
+        <div class="custom-features">
+          <div class="custom-feat">
+            <div class="feat-icon">⚡</div>
+            <div>
+              <strong data-en="Fast Turnaround" data-bn="দ্রুত সরবরাহ">Fast Turnaround</strong>
+              <span data-en="3–7 days delivery" data-bn="৩–৭ দিনে ডেলিভারি">3–7 days delivery</span>
+            </div>
+          </div>
+          <div class="custom-feat">
+            <div class="feat-icon">🎨</div>
+            <div>
+              <strong data-en="Free Design Help" data-bn="বিনামূল্যে ডিজাইন সহায়তা">Free Design Help</strong>
+              <span data-en="We refine your concept" data-bn="আমরা আপনার ধারণা পরিমার্জন করি">We refine your concept</span>
+            </div>
+          </div>
+          <div class="custom-feat">
+            <div class="feat-icon">📦</div>
+            <div>
+              <strong data-en="Safe Packaging" data-bn="নিরাপদ প্যাকেজিং">Safe Packaging</strong>
+              <span data-en="Shipped across Bangladesh" data-bn="সারা বাংলাদেশে শিপিং">Shipped across Bangladesh</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-right">
+        <form class="order-form" id="orderForm" onsubmit="handleFormSubmit(event)">
+          <div class="form-group">
+            <label data-en="Your Name" data-bn="আপনার নাম">Your Name</label>
+            <input type="text" placeholder="e.g. Rahim Uddin" required/>
+          </div>
+          <div class="form-group">
+            <label data-en="Phone / WhatsApp" data-bn="ফোন / হোয়াটসঅ্যাপ">Phone / WhatsApp</label>
+            <input type="tel" placeholder="+880 17XX XXX XXX" required/>
+          </div>
+          <div class="form-group full">
+            <label data-en="Describe Your Design Idea" data-bn="আপনার ডিজাইন ধারণা বর্ণনা করুন">Describe Your Design Idea</label>
+            <textarea rows="4" placeholder="e.g. A small dragon with wings, approx 8cm, in red and gold..." required></textarea>
+          </div>
+          <div class="form-group full">
+            <label data-en="Upload Reference Image (Optional)" data-bn="রেফারেন্স ছবি আপলোড করুন (ঐচ্ছিক)">Upload Reference Image (Optional)</label>
+            <div class="upload-zone" id="uploadZone">
+              <div class="upload-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              </div>
+              <span data-en="Drop image here or click to browse" data-bn="ছবি এখানে ড্রপ করুন বা ব্রাউজ করুন">Drop image here or click to browse</span>
+              <input type="file" accept="image/*" id="fileInput" style="display:none" onchange="handleFile(event)"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-en="Category" data-bn="ক্যাটাগরি">Category</label>
+            <select>
+              <option data-en="Cute Toy" data-bn="কিউট খেলনা">Cute Toy</option>
+              <option data-en="Couple Gift" data-bn="কাপল গিফট">Couple Gift</option>
+              <option data-en="Keychain" data-bn="কীচেইন">Keychain</option>
+              <option data-en="Action Figure" data-bn="অ্যাকশন ফিগার">Action Figure</option>
+              <option data-en="Other" data-bn="অন্যান্য">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-en="Budget (BDT)" data-bn="বাজেট (টাকা)">Budget (BDT)</label>
+            <select>
+              <option>৳ 300–500</option>
+              <option>৳ 500–1000</option>
+              <option>৳ 1000–2000</option>
+              <option data-en="৳ 2000+" data-bn="৳ ২০০০+">৳ 2000+</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary full-btn">
+            <span data-en="Send My Order Request" data-bn="আমার অর্ডার পাঠান">Send My Order Request</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+          <div class="form-success" id="formSuccess">
+            <span>🎉</span>
+            <span data-en="Request sent! We'll WhatsApp you within 2 hours." data-bn="অনুরোধ পাঠানো হয়েছে! আমরা ২ ঘন্টার মধ্যে হোয়াটসঅ্যাপ করব।">Request sent! We'll WhatsApp you within 2 hours.</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════════════════ -->
+<section id="how">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag" data-en="The Process" data-bn="প্রক্রিয়া">The Process</span>
+      <h2 data-en="From Idea to <em>Reality</em>" data-bn="ধারণা থেকে <em>বাস্তবতায়</em>">From Idea to <em>Reality</em></h2>
+    </div>
+    <div class="steps-track">
+      <div class="steps-line">
+        <div class="steps-progress" id="stepsProgress"></div>
+      </div>
+      <div class="step-node" data-step="1">
+        <div class="step-bubble">
+          <div class="step-num">01</div>
+          <div class="step-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <h3 data-en="Share Your Idea" data-bn="আপনার ধারণা শেয়ার করুন">Share Your Idea</h3>
+          <p data-en="Describe what you want or send us a sketch, image, or reference. No idea is too big or too small." data-bn="আপনি যা চান তা বর্ণনা করুন বা একটি স্কেচ, ছবি বা রেফারেন্স পাঠান।">Describe what you want or send us a sketch, image, or reference. No idea is too big or too small.</p>
+        </div>
+      </div>
+      <div class="step-node" data-step="2">
+        <div class="step-bubble">
+          <div class="step-num">02</div>
+          <div class="step-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <h3 data-en="We Design & Confirm" data-bn="আমরা ডিজাইন করি ও নিশ্চিত করি">We Design & Confirm</h3>
+          <p data-en="Our designers create a 3D model preview. We share it with you for approval before printing." data-bn="আমাদের ডিজাইনাররা একটি ৩ডি মডেল প্রিভিউ তৈরি করে। প্রিন্টের আগে অনুমোদনের জন্য শেয়ার করি।">Our designers create a 3D model preview. We share it with you for approval before printing.</p>
+        </div>
+      </div>
+      <div class="step-node" data-step="3">
+        <div class="step-bubble">
+          <div class="step-num">03</div>
+          <div class="step-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <h3 data-en="Print & Deliver" data-bn="প্রিন্ট ও ডেলিভারি">Print & Deliver</h3>
+          <p data-en="We print, finish, and package your creation with care. Delivered safely to your doorstep in Bangladesh." data-bn="আমরা প্রিন্ট, ফিনিশ করি এবং যত্নসহকারে প্যাকেজ করি। বাংলাদেশে আপনার দরজায় নিরাপদে পৌঁছে দেই।">We print, finish, and package your creation with care. Delivered safely to your doorstep in Bangladesh.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     GALLERY
+═══════════════════════════════════════════ -->
+<section id="gallery">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag" data-en="Our Work" data-bn="আমাদের কাজ">Our Work</span>
+      <h2 data-en="Fresh From <em>The Printer</em>" data-bn="প্রিন্টার থেকে <em>সরাসরি</em>">Fresh From <em>The Printer</em></h2>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item gi-large" data-label="Dragon Miniature">
+        <div class="gallery-visual" style="--hue:260">
+          <div class="gallery-3d" id="g1"></div>
+        </div>
+        <div class="gallery-overlay">
+          <span data-en="Dragon Miniature" data-bn="ড্রাগন মিনিয়েচার">Dragon Miniature</span>
+        </div>
+      </div>
+      <div class="gallery-item" data-label="Couple Figurine">
+        <div class="gallery-visual" style="--hue:330">
+          <div class="gallery-3d" id="g2"></div>
+        </div>
+        <div class="gallery-overlay">
+          <span data-en="Couple Figurine" data-bn="কাপল ফিগারিন">Couple Figurine</span>
+        </div>
+      </div>
+      <div class="gallery-item" data-label="Cute Elephant">
+        <div class="gallery-visual" style="--hue:200">
+          <div class="gallery-3d" id="g3"></div>
+        </div>
+        <div class="gallery-overlay">
+          <span data-en="Cute Elephant" data-bn="কিউট হাতি">Cute Elephant</span>
+        </div>
+      </div>
+      <div class="gallery-item gi-tall" data-label="Hero Action Figure">
+        <div class="gallery-visual" style="--hue:30">
+          <div class="gallery-3d" id="g4"></div>
+        </div>
+        <div class="gallery-overlay">
+          <span data-en="Hero Figure" data-bn="হিরো ফিগার">Hero Figure</span>
+        </div>
+      </div>
+      <div class="gallery-item" data-label="Keychain Set">
+        <div class="gallery-visual" style="--hue:160">
+          <div class="gallery-3d" id="g5"></div>
+        </div>
+        <div class="gallery-overlay">
+          <span data-en="Keychain Set" data-bn="কীচেইন সেট">Keychain Set</span>
+        </div>
+      </div>
+      <div class="gallery-item gi-wide" data-label="Snake Figurine">
+        <div class="gallery-visual" style="--hue:90">
+          <div class="gallery-3d" id="g6"></div>
+        </div>
+        <div class="gallery-overlay">
+          <span data-en="Snake Figurine" data-bn="সাপ ফিগারিন">Snake Figurine</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════════════ -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag" data-en="Happy Customers" data-bn="সন্তুষ্ট গ্রাহক">Happy Customers</span>
+      <h2 data-en="They Love <em>Their Prints</em>" data-bn="তারা তাদের প্রিন্ট <em>ভালোবাসেন</em>">They Love <em>Their Prints</em></h2>
+    </div>
+    <div class="testimonial-track" id="testimonialTrack">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p data-en='"I ordered a custom dragon for my son\'s birthday — it arrived looking even better than the preview. Incredible quality from Bangladesh!"' data-bn='"আমার ছেলের জন্মদিনের জন্য একটি কাস্টম ড্রাগন অর্ডার করেছিলাম — প্রিভিউর চেয়েও ভালো এলো।"'>"I ordered a custom dragon for my son's birthday — it arrived looking even better than the preview. Incredible quality!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--av-hue:260">R</div>
+          <div>
+            <strong>Rafiq Hassan</strong>
+            <span>Dhaka</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p data-en='"The couple figurine I got for our anniversary was absolutely perfect. They matched our poses from the photo exactly. 10/10!"' data-bn='"আমাদের বার্ষিকীর জন্য কাপল ফিগারিন ছিল নিখুঁত। তারা ছবি থেকে আমাদের ভঙ্গি হুবহু মিলিয়েছে।"'>"The couple figurine for our anniversary was absolutely perfect. They matched our poses from the photo exactly. 10/10!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--av-hue:330">S</div>
+          <div>
+            <strong>Sunita Das</strong>
+            <span>Chittagong</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p data-en='"Super fast delivery and the packaging was excellent. My keychain set looks amazing. Will definitely order again!"' data-bn='"অতি দ্রুত ডেলিভারি এবং প্যাকেজিং চমৎকার ছিল। আমার কীচেইন সেট অসাধারণ দেখাচ্ছে।"'>"Super fast delivery and the packaging was excellent. My keychain set looks amazing. Will definitely order again!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--av-hue:200">A</div>
+          <div>
+            <strong>Anika Begum</strong>
+            <span>Sylhet</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p data-en='"I was skeptical at first but the result blew me away. The detail on the action figure is insane. Best 3D printing in BD!"' data-bn='"প্রথমে সন্দিহান ছিলাম কিন্তু ফলাফল আমাকে অবাক করে দিয়েছে। অ্যাকশন ফিগারের বিবরণ অবিশ্বাস্য।"'>"I was skeptical at first but the result blew me away. The detail on the action figure is insane. Best 3D printing in BD!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--av-hue:30">T</div>
+          <div>
+            <strong>Tanvir Ahmed</strong>
+            <span>Rajshahi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-dots" id="testiDots"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer id="footer">
+  <div class="footer-glow"></div>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#hero" class="nav-logo">
+          <span class="logo-mark">P</span>
+          <span class="logo-text">PrintCraft<em>BD</em></span>
+        </a>
+        <p data-en="Bangladesh's home for custom 3D-printed creations. From cute toys to couple gifts — we print your world." data-bn="কাস্টম ৩ডি প্রিন্টেড সৃষ্টির জন্য বাংলাদেশের ঘর।">Bangladesh's home for custom 3D-printed creations. From cute toys to couple gifts — we print your world.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook" class="social-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="Instagram" class="social-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+          <a href="https://wa.me/8801XXXXXXXXX" aria-label="WhatsApp" class="social-btn wa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-en="Quick Links" data-bn="দ্রুত লিঙ্ক">Quick Links</h4>
+        <ul>
+          <li><a href="#products" data-en="Products" data-bn="পণ্য">Products</a></li>
+          <li><a href="#custom" data-en="Custom Order" data-bn="কাস্টম অর্ডার">Custom Order</a></li>
+          <li><a href="#how" data-en="How It Works" data-bn="কিভাবে কাজ করে">How It Works</a></li>
+          <li><a href="#gallery" data-en="Gallery" data-bn="গ্যালারি">Gallery</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-en="Contact Us" data-bn="যোগাযোগ করুন">Contact Us</h4>
+        <ul class="contact-list">
+          <li>📍 <span data-en="Dhaka, Bangladesh" data-bn="ঢাকা, বাংলাদেশ">Dhaka, Bangladesh</span></li>
+          <li>📱 +880 17XX XXX XXX</li>
+          <li>📧 hello@printcraftbd.com</li>
+          <li>🕐 <span data-en="Sat–Thu, 9am–9pm" data-bn="শনি–বৃহঃ, সকাল ৯টা–রাত ৯টা">Sat–Thu, 9am–9pm</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-en="© 2026 PrintCraftBD. All rights reserved." data-bn="© ২০২৬ প্রিন্টক্রাফটবিডি। সর্বস্বত্ব সংরক্ষিত।">© 2026 PrintCraftBD. All rights reserved.</span>
+      <span data-en="Made with ❤️ in Bangladesh" data-bn="বাংলাদেশে ❤️ দিয়ে তৈরি">Made with ❤️ in Bangladesh</span>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp FAB -->
+<a href="https://wa.me/8801XXXXXXXXX" target="_blank" class="wa-fab" id="waFab">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="wa-tooltip" data-en="Chat on WhatsApp" data-bn="হোয়াটসঅ্যাপে চ্যাট করুন">Chat on WhatsApp</span>
+</a>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
