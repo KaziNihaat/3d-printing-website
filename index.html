@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="gallery.css"/>
 </head>
 <body>
 
@@ -23,7 +24,7 @@
     <li><a href="#shop"    data-en="Shop"          data-bn="শপ">Shop</a></li>
     <li><a href="#custom"  data-en="Custom Order"   data-bn="কাস্টম অর্ডার">Custom Order</a></li>
     <li><a href="#how"     data-en="How It Works"   data-bn="কিভাবে কাজ করে">How It Works</a></li>
-    <li><a href="#gallery" data-en="Gallery"        data-bn="গ্যালারি">Gallery</a></li>
+    <li><a href="#photo-gallery" data-en="Gallery" data-bn="গ্যালারি">Gallery</a></li>
   </ul>
   <div class="nav-controls">
     <button class="toggle-btn lang-toggle" id="langToggle" aria-label="Toggle language">
@@ -356,21 +357,70 @@
   </div>
 </section>
 
-<!-- GALLERY -->
-<section id="gallery">
+<!-- ═══════════════════════════════════════════════════
+     PHOTO GALLERY  ★ NEW
+════════════════════════════════════════════════ -->
+<section id="photo-gallery">
   <div class="container">
+
+    <!-- Header -->
     <div class="section-header">
       <span class="section-tag" data-en="Our Work" data-bn="আমাদের কাজ">Our Work</span>
       <h2 data-en="Fresh From <em>The Printer</em>" data-bn="প্রিন্টার থেকে <em>সরাসরি</em>">Fresh From <em>The Printer</em></h2>
+      <p data-en="Every photo is a real print from our studio. Click any image to view fullscreen." data-bn="প্রতিটি ছবি আমাদের স্টুডিও থেকে একটি বাস্তব প্রিন্ট। ফুলস্ক্রিনে দেখতে যেকোনো ছবিতে ক্লিক করুন।">Every photo is a real print from our studio. Click any image to view fullscreen.</p>
     </div>
-    <div class="gallery-grid">
-      <div class="gallery-item gi-large"><div class="gallery-visual" style="--hue:260"><div class="gallery-3d" id="g1"></div></div><div class="gallery-overlay"><span data-en="Dragon Miniature" data-bn="ড্রাগন মিনিয়েচার">Dragon Miniature</span></div></div>
-      <div class="gallery-item"><div class="gallery-visual" style="--hue:330"><div class="gallery-3d" id="g2"></div></div><div class="gallery-overlay"><span data-en="Couple Figurine" data-bn="কাপল ফিগারিন">Couple Figurine</span></div></div>
-      <div class="gallery-item"><div class="gallery-visual" style="--hue:200"><div class="gallery-3d" id="g3"></div></div><div class="gallery-overlay"><span data-en="Cute Elephant" data-bn="কিউট হাতি">Cute Elephant</span></div></div>
-      <div class="gallery-item gi-tall"><div class="gallery-visual" style="--hue:30"><div class="gallery-3d" id="g4"></div></div><div class="gallery-overlay"><span data-en="Hero Figure" data-bn="হিরো ফিগার">Hero Figure</span></div></div>
-      <div class="gallery-item"><div class="gallery-visual" style="--hue:160"><div class="gallery-3d" id="g5"></div></div><div class="gallery-overlay"><span data-en="Keychain Set" data-bn="কীচেইন সেট">Keychain Set</span></div></div>
-      <div class="gallery-item gi-wide"><div class="gallery-visual" style="--hue:90"><div class="gallery-3d" id="g6"></div></div><div class="gallery-overlay"><span data-en="Snake Figurine" data-bn="সাপ ফিগারিন">Snake Figurine</span></div></div>
+
+    <!-- Category tabs -->
+    <div class="gallery-tabs">
+      <button class="gtab active" data-filter="all"       data-en="All"          data-bn="সব">All</button>
+      <button class="gtab"        data-filter="dragons"   data-en="Dragons"      data-bn="ড্রাগন">Dragons</button>
+      <button class="gtab"        data-filter="cute-toys" data-en="Cute Toys"    data-bn="কিউট খেলনা">Cute Toys</button>
+      <button class="gtab"        data-filter="animals"   data-en="Baby Animals" data-bn="বেবি অ্যানিমেল">Baby Animals</button>
+      <button class="gtab"        data-filter="dinos"     data-en="Dinosaurs"    data-bn="ডাইনোসর">Dinosaurs</button>
+      <button class="gtab"        data-filter="custom"    data-en="Custom"       data-bn="কাস্টম">Custom</button>
     </div>
+
+    <!-- View switcher -->
+    <div class="gallery-view-toggle">
+      <button class="gvt-btn active" data-view="masonry">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        <span data-en="Grid" data-bn="গ্রিড">Grid</span>
+      </button>
+      <button class="gvt-btn" data-view="slideshow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <path d="M10 9l5 3-5 3V9z"/>
+        </svg>
+        <span data-en="Slideshow" data-bn="স্লাইডশো">Slideshow</span>
+      </button>
+    </div>
+
+    <!-- Masonry panel (built by gallery.js) -->
+    <div class="gallery-panel active" data-panel="masonry">
+      <div class="masonry-wrap" id="masonryWrap">
+        <!-- Items injected by gallery.js -->
+      </div>
+    </div>
+
+    <!-- Slideshow panel (built by gallery.js) -->
+    <div class="gallery-panel" data-panel="slideshow">
+      <div class="slideshow-wrap">
+        <div class="slideshow-track" id="slideshowTrack">
+          <!-- Slides injected by gallery.js -->
+        </div>
+        <button class="ss-arrow left" aria-label="Previous">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="ss-arrow right" aria-label="Next">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="ss-dots" id="ssDots"></div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -421,6 +471,7 @@
 </a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="gallery.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

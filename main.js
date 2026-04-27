@@ -665,6 +665,11 @@ window.openModal = function(id){
     modal._closeScene=()=>{open=false;};
   }
 
+  // Inject image carousel into modal (gallery.js)
+  if(typeof patchModalWithImages === 'function'){
+    setTimeout(() => patchModalWithImages(id), 50);
+  }
+
   overlay.classList.add('open');
   modal.classList.add('open');
   document.body.style.overflow='hidden';
