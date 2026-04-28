@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin — PrintCraft BD</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════
+   PRINTCRAFT BD — admin.css (embedded)
+══════════════════════════════════════════ */
+:root {
+  --bg:       #06040f;
+  --bg2:      #0d0a1e;
+  --surface:  #1a1636;
+  --surface2: #221e42;
+  --border:   rgba(138,110,255,0.18);
+  --border2:  rgba(138,110,255,0.35);
+  --text:     #f0ecff;
+  --text2:    #a89ec9;
+  --text3:    #6b6490;
+  --accent:   #7c5cff;
+  --accent2:  #b084ff;
+  --cyan:     #00d4ff;
+  --green:    #1bea8a;
+  --pink:     #ff4da6;
+  --red:      #ff4455;
+  --gold:     #ffd700;
+  --orange:   #ff8c42;
+  --glow:     rgba(124,92,255,0.35);
+  --font-d:   'Syne', sans-serif;
+  --font-b:   'DM Sans', sans-serif;
+  --r:        0.3s cubic-bezier(.4,0,.2,1);
+  --rad:      12px;
+}
+[data-theme="light"] {
+  --bg:#f8f6ff; --bg2:#f0ecff; --surface:#fff; --surface2:#f4f1ff;
+  --border:rgba(124,92,255,0.12); --border2:rgba(124,92,255,0.3);
+  --text:#1a1530; --text2:#4a4570; --text3:#9a96b8;
+  --accent:#6644ee; --accent2:#9066dd; --cyan:#0099cc;
+  --glow:rgba(102,68,238,0.2);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background var(--r),color var(--r)}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px}
+h1,h2,h3,h4{font-family:var(--font-d);font-weight:700}
+em{font-style:normal;color:var(--accent2)}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen {
+  position:fixed;inset:0;z-index:1000;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+.login-card {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:48px 44px;
+  width:100%;max-width:420px;
+  text-align:center;
+  box-shadow:0 0 80px var(--glow);
+}
+.login-logo {
+  font-family:var(--font-d);font-size:1.4rem;font-weight:800;
+  margin-bottom:8px;
+}
+.login-logo em{color:var(--cyan)}
+.login-sub{font-size:.85rem;color:var(--text2);margin-bottom:32px}
+.login-field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;text-align:left}
+.login-field label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2)}
+.login-field input{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:13px 16px;color:var(--text);font-size:.95rem;outline:none;
+  transition:border-color var(--r),box-shadow var(--r);
+}
+.login-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.login-btn {
+  width:100%;padding:14px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  color:#fff;font-family:var(--font-d);font-size:1rem;font-weight:700;
+  margin-top:8px;transition:transform var(--r),box-shadow var(--r);
+  box-shadow:0 6px 24px var(--glow);
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px var(--glow)}
+.login-error{
+  color:var(--red);font-size:.82rem;margin-top:10px;
+  min-height:20px;transition:opacity .2s;
+}
+.login-hint{font-size:.72rem;color:var(--text3);margin-top:20px;line-height:1.6}
+.login-hint code{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;padding:2px 7px;font-size:.7rem;color:var(--accent2);
+}
+
+/* ── MAIN LAYOUT ── */
+#adminApp{display:none;min-height:100vh}
+#adminApp.active{display:flex}
+
+/* Sidebar */
+.sidebar {
+  width:240px;flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;
+  z-index:100;transition:transform var(--r);
+}
+.sidebar-logo {
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--font-d);font-size:1.1rem;font-weight:800;
+}
+.sidebar-logo .logo-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  color:#fff;font-size:.85rem;margin-right:8px;
+  box-shadow:0 0 14px var(--glow);
+}
+.sidebar-logo em{color:var(--cyan)}
+.sidebar-user{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  font-size:.78rem;color:var(--text2);
+}
+.sidebar-user strong{display:block;font-size:.88rem;color:var(--text);margin-bottom:2px}
+.sidebar-user .role-badge{
+  display:inline-block;padding:2px 8px;border-radius:50px;
+  background:rgba(124,92,255,0.15);border:1px solid var(--border2);
+  color:var(--accent2);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+}
+
+/* Nav links */
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.nav-item {
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:10px;
+  font-size:.88rem;font-weight:500;color:var(--text2);
+  border:none;background:transparent;width:100%;text-align:left;
+  transition:all var(--r);cursor:pointer;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{
+  background:linear-gradient(135deg,rgba(124,92,255,0.2),rgba(0,212,255,0.1));
+  color:var(--text);border:1px solid var(--border2);
+}
+.nav-item .nav-icon{font-size:1rem;width:20px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--pink);color:#fff;
+  font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:50px;
+}
+
+/* Bottom sidebar controls */
+.sidebar-bottom{
+  padding:16px 12px;border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:8px;
+}
+.ctrl-btn{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;
+  border-radius:10px;background:transparent;border:1px solid var(--border);
+  color:var(--text2);font-size:.82rem;width:100%;text-align:left;
+  transition:all var(--r);
+}
+.ctrl-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.ctrl-btn.danger:hover{border-color:rgba(255,68,85,.4);color:var(--red);background:rgba(255,68,85,.06)}
+
+/* Main content */
+.main-content{
+  margin-left:240px;flex:1;
+  display:flex;flex-direction:column;min-height:100vh;
+}
+
+/* Top bar */
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:16px 28px;display:flex;align-items:center;
+  justify-content:space-between;gap:16px;position:sticky;top:0;z-index:50;
+}
+.page-title{font-family:var(--font-d);font-size:1.3rem;font-weight:700}
+.page-title span{color:var(--text2);font-size:.85rem;font-weight:400;margin-left:10px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-search{
+  background:var(--bg2);border:1px solid var(--border);border-radius:50px;
+  padding:8px 16px;color:var(--text);font-size:.82rem;outline:none;width:220px;
+  transition:border-color var(--r),box-shadow var(--r);
+}
+.topbar-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.topbar-btn{
+  padding:8px 18px;border-radius:50px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);font-size:.8rem;font-weight:600;
+  transition:all var(--r);
+}
+.topbar-btn:hover{background:var(--surface2);color:var(--text)}
+.topbar-btn.primary{
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  color:#fff;border:none;box-shadow:0 4px 16px var(--glow);
+}
+.topbar-btn.primary:hover{transform:translateY(-1px)}
+
+/* Page body */
+.page-body{padding:28px;flex:1}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);
+  padding:20px 22px;transition:border-color var(--r),box-shadow var(--r);
+}
+.stat-card:hover{border-color:var(--border2);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.stat-card-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px}
+.stat-card-value{font-family:var(--font-d);font-size:2rem;font-weight:700}
+.stat-card-sub{font-size:.75rem;color:var(--text2);margin-top:4px}
+.stat-card.accent .stat-card-value{color:var(--accent2)}
+.stat-card.green  .stat-card-value{color:var(--green)}
+.stat-card.pink   .stat-card-value{color:var(--pink)}
+.stat-card.gold   .stat-card-value{color:var(--gold)}
+
+/* ── SECTION CARD ── */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--rad);overflow:hidden;margin-bottom:24px;
+}
+.section-card-header{
+  padding:18px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.section-card-title{font-size:1rem;font-weight:700}
+.section-card-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ── FILTER BAR ── */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;padding:16px 22px;border-bottom:1px solid var(--border)}
+.filter-pill{
+  padding:6px 14px;border-radius:50px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);font-size:.75rem;font-weight:600;
+  transition:all var(--r);cursor:pointer;
+}
+.filter-pill:hover{border-color:var(--border2);color:var(--text)}
+.filter-pill.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border-color:transparent;
+  box-shadow:0 2px 12px var(--glow);
+}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  padding:12px 16px;text-align:left;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;color:var(--text3);
+  border-bottom:1px solid var(--border);
+}
+.data-table td{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  font-size:.88rem;color:var(--text2);vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(124,92,255,.04)}
+.data-table .primary-col{color:var(--text);font-weight:500}
+
+/* ── PHOTO GRID (admin) ── */
+.admin-photo-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:14px;padding:20px;
+}
+.admin-photo-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--rad);overflow:hidden;
+  transition:transform var(--r),border-color var(--r),box-shadow var(--r);
+}
+.admin-photo-card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.admin-photo-card img{
+  width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+  transition:transform var(--r);
+}
+.admin-photo-card:hover img{transform:scale(1.04)}
+.admin-photo-info{padding:10px 12px}
+.admin-photo-title{font-size:.78rem;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:3px}
+.admin-photo-cat{font-size:.65rem;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.admin-photo-actions{display:flex;border-top:1px solid var(--border)}
+.aph-btn{
+  flex:1;padding:8px 0;font-size:.72rem;font-weight:600;
+  background:transparent;border:none;color:var(--text2);
+  transition:all var(--r);
+}
+.aph-btn:hover{background:var(--surface);color:var(--text)}
+.aph-btn.del:hover{color:var(--red)}
+.aph-btn:first-child{border-right:1px solid var(--border)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);display:none;
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:20px;width:100%;max-width:520px;max-height:90vh;
+  overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 40px var(--glow);
+  position:relative;
+}
+.modal-header{
+  padding:22px 24px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--surface);z-index:2;
+}
+.modal-header h3{font-size:1.05rem;font-weight:700}
+.modal-close{
+  width:32px;height:32px;border-radius:50%;background:var(--surface2);
+  border:1px solid var(--border);color:var(--text2);font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;transition:all var(--r);
+}
+.modal-close:hover{background:rgba(255,68,85,.15);color:var(--red);border-color:rgba(255,68,85,.3)}
+.modal-body{padding:22px 24px}
+.modal-footer{
+  padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:10px;
+  position:sticky;bottom:0;background:var(--surface);
+}
+
+/* ── FORMS (modal) ── */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text2)}
+.field input,.field select,.field textarea{
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;color:var(--text);font-size:.88rem;outline:none;
+  transition:border-color var(--r),box-shadow var(--r);
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);
+}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field select option{background:var(--bg2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upload-zone{
+  border:1.5px dashed var(--border2);border-radius:10px;
+  padding:24px;text-align:center;cursor:pointer;
+  transition:all var(--r);color:var(--text3);font-size:.82rem;
+  background:var(--bg);
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);color:var(--text2);background:rgba(124,92,255,.04)}
+.img-preview{
+  width:100%;aspect-ratio:16/9;object-fit:cover;
+  border-radius:10px;display:block;margin-bottom:12px;
+  border:1px solid var(--border);
+}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:10px 22px;border-radius:50px;font-size:.85rem;font-weight:600;
+  border:1px solid var(--border2);background:transparent;color:var(--text2);
+  transition:all var(--r);
+}
+.btn:hover{background:var(--surface2);color:var(--text)}
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;box-shadow:0 4px 16px var(--glow);
+}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--glow)}
+.btn.danger{border-color:rgba(255,68,85,.35);color:var(--red)}
+.btn.danger:hover{background:rgba(255,68,85,.1);border-color:rgba(255,68,85,.6)}
+.btn.green{border-color:rgba(27,234,138,.35);color:var(--green)}
+.btn.green:hover{background:rgba(27,234,138,.1);border-color:rgba(27,234,138,.6)}
+
+/* ── STATUS BADGE ── */
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:50px;
+  font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;
+}
+.badge.new    {background:rgba(124,92,255,.15);color:var(--accent2);border:1px solid var(--border2)}
+.badge.active {background:rgba(27,234,138,.12);color:var(--green);border:1px solid rgba(27,234,138,.3)}
+.badge.pending{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.3)}
+.badge.done   {background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.25)}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:50px;padding:12px 22px;font-size:.85rem;font-weight:500;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:9999;
+  display:none;align-items:center;gap:10px;white-space:nowrap;
+}
+#toast.show{display:flex;animation:slideUp .3s ease}
+#toast.success{border-color:rgba(27,234,138,.4);color:var(--green)}
+#toast.error  {border-color:rgba(255,68,85,.4);color:var(--red)}
+@keyframes slideUp{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  padding:60px 24px;text-align:center;color:var(--text3);
+}
+.empty-state .empty-icon{font-size:2.5rem;margin-bottom:12px}
+.empty-state h4{font-size:1rem;color:var(--text2);margin-bottom:6px}
+.empty-state p{font-size:.85rem}
+
+/* ── CONFIRM DELETE ── */
+#confirmBox{
+  position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(6px);display:none;
+  align-items:center;justify-content:center;padding:20px;
+}
+#confirmBox.open{display:flex}
+.confirm-card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:16px;padding:28px 32px;max-width:360px;width:100%;
+  text-align:center;
+}
+.confirm-card h3{font-size:1.05rem;margin-bottom:8px}
+.confirm-card p{color:var(--text2);font-size:.88rem;margin-bottom:22px}
+.confirm-card .confirm-actions{display:flex;gap:10px;justify-content:center}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-left:0}
+  .mobile-menu-btn{display:flex!important}
+  .admin-photo-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .field-row{grid-template-columns:1fr}
+}
+.mobile-menu-btn{
+  display:none;width:36px;height:36px;border-radius:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);align-items:center;justify-content:center;font-size:1.1rem;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TOAST
+══════════════════════════════════════ -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     CONFIRM DELETE
+══════════════════════════════════════ -->
+<div id="confirmBox">
+  <div class="confirm-card">
+    <h3 id="confirmTitle">Delete this item?</h3>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn" onclick="closeConfirm()">Cancel</button>
+      <button class="btn danger" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-mark" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c5cff,#00d4ff);color:#fff;font-size:1rem;margin-right:8px;vertical-align:middle;">P</span>
+      PrintCraft<em>BD</em>
+    </div>
+    <div class="login-sub">Admin Panel — Sign in to continue</div>
+
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"/>
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="loginError"></div>
+
+    <div class="login-hint">
+      Default credentials:<br/>
+      Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>printcraft2026</code><br/>
+      <br/>
+      Change these in <code>admin.html</code> → <code>ADMIN_USERS</code>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADMIN APP
+══════════════════════════════════════ -->
+<div id="adminApp">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-mark">P</span>
+      PrintCraft<em>BD</em>
+    </div>
+    <div class="sidebar-user">
+      <strong id="sidebarUsername">admin</strong>
+      <span class="role-badge" id="sidebarRole">Owner</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard" onclick="goPage('dashboard',this)">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" data-page="photos" onclick="goPage('photos',this)">
+        <span class="nav-icon">🖼</span> Photos
+        <span class="nav-badge" id="photoBadge">0</span>
+      </button>
+      <button class="nav-item" data-page="products" onclick="goPage('products',this)">
+        <span class="nav-icon">📦</span> Products
+      </button>
+      <button class="nav-item" data-page="orders" onclick="goPage('orders',this)">
+        <span class="nav-icon">🛒</span> Orders
+        <span class="nav-badge" id="orderBadge" style="background:var(--green)">0</span>
+      </button>
+      <button class="nav-item" data-page="users" onclick="goPage('users',this)">
+        <span class="nav-icon">👤</span> Users
+      </button>
+      <button class="nav-item" data-page="settings" onclick="goPage('settings',this)">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="ctrl-btn" onclick="toggleTheme()">
+        <span id="themeLabel">☀️ Light mode</span>
+      </button>
+      <a class="ctrl-btn" href="index.html" target="_blank">
+        <span>🌐</span> View site
+      </a>
+      <button class="ctrl-btn danger" onclick="doLogout()">
+        <span>🚪</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+        <div>
+          <div class="page-title" id="pageTitle">Dashboard <span id="pageSub"></span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <input type="text" class="topbar-search" id="globalSearch"
+          placeholder="Search anything…" oninput="handleSearch(this.value)"/>
+        <button class="topbar-btn primary" id="topAddBtn" onclick="handleAddBtn()" style="display:none">
+          + Add Photo
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-body" id="pageBody"></div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════
+     PHOTO / PRODUCT MODAL
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Edit Photo</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" id="modalSaveBtn" onclick="saveModal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   ADMIN.JS — PrintCraft BD
+   Sections:
+   1. Config & users
+   2. Storage keys & data helpers
+   3. Auth
+   4. Navigation
+   5. Dashboard page
+   6. Photos page
+   7. Products page
+   8. Orders page
+   9. Users page
+   10. Settings page
+   11. Modal system
+   12. Toast & confirm
+   13. Theme & misc utils
+   14. Init
+══════════════════════════════════════════════════ */
+
+/* ── 1. CONFIG & USERS ──
+   ► Change passwords here before deploying! ◄ */
+const ADMIN_USERS = [
+  { username: 'admin',   password: 'printcraft2026', role: 'Owner',   name: 'Admin' },
+  { username: 'manager', password: 'manager123',     role: 'Manager', name: 'Manager' },
+];
+
+/* Storage keys — must match gallery.js */
+const SK_PHOTOS   = 'printcraft_photos_v2';
+const SK_PRODUCTS = 'printcraft_products';
+const SK_ORDERS   = 'printcraft_orders';
+const SK_SETTINGS = 'printcraft_settings';
+const SK_SESSION  = 'printcraft_admin_session';
+
+const CATS = [
+  {id:'dragons',   label:'Dragons',       emoji:'🐉'},
+  {id:'cute-toys', label:'Cute Toys',      emoji:'🐱'},
+  {id:'animals',   label:'Baby Animals',   emoji:'🦌'},
+  {id:'dinos',     label:'Dinosaurs',      emoji:'🦕'},
+  {id:'custom',    label:'Custom Designs', emoji:'✦'},
+];
+
+const PRODUCT_IDS = ['nightfury','kitten','raptor','deer','firedrake','cutedino','elephant','custom'];
+
+/* Seed products (mirrors main.js PRODUCTS) */
+const SEED_PRODUCTS = [
+  {id:'nightfury', name:'Night Fury Dragon',    cat:'dragons',   price:650, stock:10, active:true, desc:'Sleek, poseable — inspired by legendary night dragons. ~14cm wingspan.'},
+  {id:'kitten',    name:'Cute Kitten Figurine',  cat:'cute-toys', price:380, stock:15, active:true, desc:'Adorable sitting kitten with big round eyes. 10 pastel colour options.'},
+  {id:'raptor',    name:'Velociraptor',          cat:'dinos',     price:520, stock:8,  active:true, desc:'High-detail running raptor with articulated jaw.'},
+  {id:'deer',      name:'Baby Deer (Fawn)',      cat:'animals',   price:420, stock:12, active:true, desc:'Gentle newborn deer with tiny spotted details.'},
+  {id:'firedrake', name:'Fire Drake Dragon',     cat:'dragons',   price:850, stock:6,  active:true, desc:'Rearing up with open wings and fierce claws. ~18cm tall.'},
+  {id:'cutedino',  name:'Cute Mini Dino',        cat:'dinos',     price:350, stock:20, active:true, desc:'Chubby chibi-style dino with oversized head and tiny arms.'},
+  {id:'elephant',  name:'Baby Elephant',         cat:'animals',   price:400, stock:14, active:true, desc:'Pudgy elephant with floppy ears and curled trunk.'},
+  {id:'custom',    name:'Custom Print',          cat:'custom',    price:300, stock:99, active:true, desc:'Fully custom print — any design, any size.'},
+];
+
+/* Seed orders (demo) */
+const SEED_ORDERS = [
+  {id:'ORD001', customer:'Rafiq Hassan',  phone:'+880 171 234 5678', product:'Night Fury Dragon',  qty:1, price:650, status:'done',    date:'2026-04-20', note:'Gift wrapping please'},
+  {id:'ORD002', customer:'Sunita Das',    phone:'+880 182 345 6789', product:'Cute Kitten Figurine',qty:2, price:760, status:'pending', date:'2026-04-22', note:'Pink and blue colours'},
+  {id:'ORD003', customer:'Tanvir Ahmed',  phone:'+880 191 456 7890', product:'Custom Print',        qty:1, price:500, status:'active',  date:'2026-04-23', note:'Dragon design — ref image sent on WA'},
+  {id:'ORD004', customer:'Anika Begum',   phone:'+880 174 567 8901', product:'Baby Deer (Fawn)',    qty:1, price:420, status:'done',    date:'2026-04-24', note:''},
+  {id:'ORD005', customer:'Nasir Uddin',   phone:'+880 165 678 9012', product:'Velociraptor',        qty:1, price:520, status:'pending', date:'2026-04-25', note:'Green colour preferred'},
+  {id:'ORD006', customer:'Mitu Akter',    phone:'+880 185 789 0123', product:'Fire Drake Dragon',   qty:1, price:850, status:'active',  date:'2026-04-26', note:''},
+  {id:'ORD007', customer:'Sajid Rahman',  phone:'+880 172 890 1234', product:'Baby Elephant',       qty:3, price:1200,status:'new',     date:'2026-04-27', note:'Sky blue x2, grey x1'},
+  {id:'ORD008', customer:'Nadia Hossain', phone:'+880 193 901 2345', product:'Cute Mini Dino',      qty:4, price:1400,status:'new',     date:'2026-04-28', note:'Birthday party favours'},
+];
+
+/* ── 2. DATA HELPERS ── */
+async function loadData(key, seed) {
+  try {
+    const r = await window.storage.get(key);
+    if(r && r.value) { const d = JSON.parse(r.value); if(d && d.length) return d; }
+  } catch(e) {}
+  return seed ? [...seed] : [];
+}
+async function saveData(key, data) {
+  try { await window.storage.set(key, JSON.stringify(data)); } catch(e) {}
+}
+
+/* Live data caches */
+let DATA = { photos:[], products:[], orders:[], settings:{} };
+
+async function loadAll() {
+  DATA.photos   = await loadData(SK_PHOTOS,   null) || [];
+  DATA.products = await loadData(SK_PRODUCTS, SEED_PRODUCTS);
+  DATA.orders   = await loadData(SK_ORDERS,   SEED_ORDERS);
+  try {
+    const s = await window.storage.get(SK_SETTINGS);
+    DATA.settings = s ? JSON.parse(s.value) : {};
+  } catch(e) { DATA.settings = {}; }
+  updateBadges();
+}
+
+function updateBadges() {
+  const pb = document.getElementById('photoBadge');
+  const ob = document.getElementById('orderBadge');
+  if(pb) pb.textContent = DATA.photos.length;
+  const newOrders = DATA.orders.filter(o=>o.status==='new').length;
+  if(ob) { ob.textContent = newOrders; ob.style.display = newOrders>0?'':'none'; }
+}
+
+/* ── 3. AUTH ── */
+let currentUser = null;
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  const user = ADMIN_USERS.find(x => x.username===u && x.password===p);
+  if(!user) { err.textContent = 'Invalid username or password.'; return; }
+  err.textContent = '';
+  currentUser = user;
+  try { sessionStorage.setItem(SK_SESSION, JSON.stringify({username:u, time:Date.now()})); } catch(e) {}
+  activateApp();
+}
+
+function checkSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SK_SESSION)||'null');
+    if(!s) return false;
+    if(Date.now() - s.time > 8*60*60*1000) return false; // 8hr timeout
+    const user = ADMIN_USERS.find(x=>x.username===s.username);
+    if(!user) return false;
+    currentUser = user;
+    return true;
+  } catch(e) { return false; }
+}
+
+function doLogout() {
+  try { sessionStorage.removeItem(SK_SESSION); } catch(e) {}
+  currentUser = null;
+  document.getElementById('adminApp').classList.remove('active');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+function activateApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminApp').classList.add('active');
+  document.getElementById('sidebarUsername').textContent = currentUser.name;
+  document.getElementById('sidebarRole').textContent = currentUser.role;
+  loadAll().then(() => goPage('dashboard'));
+}
+
+/* ── 4. NAVIGATION ── */
+let currentPage = 'dashboard';
+let currentFilter = 'all';
+let searchTerm = '';
+let modalMode = null; // 'add-photo'|'edit-photo'|'edit-product'|'view-order'
+let modalTarget = null;
+
+function goPage(page, btn) {
+  currentPage = page;
+  currentFilter = 'all';
+  searchTerm = '';
+  document.getElementById('globalSearch').value = '';
+
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else {
+    const b = document.querySelector(`[data-page="${page}"]`);
+    if(b) b.classList.add('active');
+  }
+
+  const titles = {
+    dashboard:'Dashboard', photos:'Photos', products:'Products',
+    orders:'Orders', users:'Users', settings:'Settings'
+  };
+  document.getElementById('pageTitle').textContent = titles[page]||page;
+  document.getElementById('pageSub').textContent = '';
+
+  const addBtn = document.getElementById('topAddBtn');
+  addBtn.style.display = page==='photos' ? '' : 'none';
+  addBtn.textContent = '+ Add Photo';
+
+  renderPage(page);
+  if(window.innerWidth<=768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function renderPage(page) {
+  const body = document.getElementById('pageBody');
+  const renders = {
+    dashboard: renderDashboard,
+    photos:    renderPhotos,
+    products:  renderProducts,
+    orders:    renderOrders,
+    users:     renderUsers,
+    settings:  renderSettings,
+  };
+  (renders[page]||renderDashboard)();
+}
+
+function handleSearch(val) {
+  searchTerm = val.toLowerCase();
+  renderPage(currentPage);
+}
+
+function handleAddBtn() {
+  if(currentPage==='photos') openAddPhoto();
+}
+
+/* ── 5. DASHBOARD ── */
+function renderDashboard() {
+  const total   = DATA.orders.reduce((s,o)=>s+o.price, 0);
+  const newOrd  = DATA.orders.filter(o=>o.status==='new').length;
+  const active  = DATA.orders.filter(o=>o.status==='active').length;
+  const done    = DATA.orders.filter(o=>o.status==='done').length;
+
+  document.getElementById('pageBody').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card accent">
+        <div class="stat-card-label">Total photos</div>
+        <div class="stat-card-value">${DATA.photos.length}</div>
+        <div class="stat-card-sub">In gallery</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-card-label">Products</div>
+        <div class="stat-card-value">${DATA.products.filter(p=>p.active).length}</div>
+        <div class="stat-card-sub">Active listings</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-card-label">New orders</div>
+        <div class="stat-card-value">${newOrd}</div>
+        <div class="stat-card-sub">Awaiting action</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-card-label">Total revenue</div>
+        <div class="stat-card-value">৳${total.toLocaleString()}</div>
+        <div class="stat-card-sub">${DATA.orders.length} orders total</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+      <!-- Recent orders -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Recent Orders</div>
+          <button class="btn" style="font-size:.75rem;padding:6px 14px" onclick="goPage('orders')">View all</button>
+        </div>
+        <table class="data-table">
+          <thead><tr>
+            <th>Customer</th><th>Product</th><th>Status</th><th>৳</th>
+          </tr></thead>
+          <tbody>
+            ${DATA.orders.slice(0,5).map(o=>`
+              <tr>
+                <td class="primary-col">${o.customer}</td>
+                <td>${o.product}</td>
+                <td><span class="badge ${o.status}">${o.status}</span></td>
+                <td>${o.price.toLocaleString()}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Order Summary</div>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          ${[
+            {label:'New — awaiting confirmation', val:newOrd,                       color:'var(--accent2)'},
+            {label:'Active — in production',      val:active,                       color:'var(--orange)'},
+            {label:'Completed',                   val:done,                         color:'var(--green)'},
+            {label:'Total revenue',               val:'৳'+total.toLocaleString(),   color:'var(--gold)'},
+          ].map(s=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+              <span style="font-size:.85rem;color:var(--text2)">${s.label}</span>
+              <span style="font-family:var(--font-d);font-weight:700;color:${s.color}">${s.val}</span>
+            </div>`).join('')}
+
+          <div style="margin-top:8px;padding-top:14px;border-top:1px solid var(--border)">
+            <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px">Photos by category</div>
+            ${CATS.map(c=>{
+              const n=DATA.photos.filter(p=>p.cat===c.id).length;
+              return `
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                  <span style="font-size:.8rem;color:var(--text2);width:110px">${c.emoji} ${c.label}</span>
+                  <div style="flex:1;height:5px;border-radius:3px;background:var(--border);overflow:hidden">
+                    <div style="height:100%;width:${DATA.photos.length?Math.round(n/DATA.photos.length*100):0}%;background:var(--accent);border-radius:3px"></div>
+                  </div>
+                  <span style="font-size:.78rem;color:var(--text2);width:20px;text-align:right">${n}</span>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── 6. PHOTOS PAGE ── */
+function renderPhotos() {
+  let photos = DATA.photos;
+  if(currentFilter!=='all') photos = photos.filter(p=>p.cat===currentFilter);
+  if(searchTerm) photos = photos.filter(p=>
+    p.title?.toLowerCase().includes(searchTerm)||
+    p.desc?.toLowerCase().includes(searchTerm)
+  );
+
+  document.getElementById('pageBody').innerHTML = `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">Gallery Photos <span style="color:var(--text3);font-size:.82rem;font-weight:400">${photos.length} shown</span></div>
+        <div class="section-card-actions">
+          <button class="btn" onclick="exportPhotos()">⬇ Export JSON</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        ${[{id:'all',label:'All',emoji:''},...CATS].map(c=>`
+          <button class="filter-pill ${currentFilter===c.id?'active':''}"
+            onclick="currentFilter='${c.id}';renderPage('photos')">
+            ${c.emoji} ${c.label||'All'}
+          </button>`).join('')}
+      </div>
+      ${photos.length===0 ? `
+        <div class="empty-state">
+          <div class="empty-icon">🖼</div>
+          <h4>No photos found</h4>
+          <p>Try a different filter or add new photos.</p>
+        </div>` : `
+        <div class="admin-photo-grid">
+          ${photos.map(p=>`
+            <div class="admin-photo-card">
+              <img src="${p.src}" alt="${p.title}"
+                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23221e42%22/><text x=%2250%25%22 y=%2250%25%22 font-family=%22sans-serif%22 font-size=%2216%22 fill=%22%236b6490%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>No image</text></svg>'"/>
+              <div class="admin-photo-info">
+                <div class="admin-photo-title">${p.title||'Untitled'}</div>
+                <div class="admin-photo-cat">${catLabel(p.cat)}</div>
+              </div>
+              <div class="admin-photo-actions">
+                <button class="aph-btn" onclick="openEditPhoto('${p.id}')">✏ Edit</button>
+                <button class="aph-btn del" onclick="deletePhoto('${p.id}')">🗑 Delete</button>
+              </div>
+            </div>`).join('')}
+        </div>`}
+    </div>`;
+}
+
+function catLabel(id){ return CATS.find(c=>c.id===id)?.label||id; }
+
+function openAddPhoto() {
+  modalMode = 'add-photo';
+  modalTarget = {id:'p'+Date.now(), cat:'dragons', product:'nightfury', title:'', desc:'', src:''};
+  document.getElementById('modalTitle').textContent = 'Add New Photo';
+  document.getElementById('modalSaveBtn').textContent = 'Add Photo';
+  renderModalBody();
+  openModal();
+}
+
+function openEditPhoto(id) {
+  const p = DATA.photos.find(x=>x.id===id);
+  if(!p) return;
+  modalMode = 'edit-photo';
+  modalTarget = {...p};
+  document.getElementById('modalTitle').textContent = 'Edit Photo';
+  document.getElementById('modalSaveBtn').textContent = 'Save Changes';
+  renderModalBody();
+  openModal();
+}
+
+function renderModalBody() {
+  if(modalMode==='add-photo'||modalMode==='edit-photo') {
+    document.getElementById('modalBody').innerHTML = `
+      ${modalTarget.src?`<img class="img-preview" src="${modalTarget.src}" id="modalPreview" onerror="this.style.display='none'"/>`:''}
+      <div class="field">
+        <label>Image Source</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('photoFileInput').click()">
+          📁 Click to upload from device
+          <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoFile(event)"/>
+        </div>
+        <div style="font-size:.75rem;color:var(--text3);margin-top:6px">— or paste a URL below —</div>
+        <input type="url" id="fSrc" placeholder="https://example.com/photo.jpg"
+          value="${modalTarget.src&&!modalTarget.src.startsWith('data:')?modalTarget.src:''}"
+          oninput="updatePreview(this.value)"/>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Category</label>
+          <select id="fCat">
+            ${CATS.map(c=>`<option value="${c.id}" ${modalTarget.cat===c.id?'selected':''}>${c.emoji} ${c.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Product</label>
+          <select id="fProd">
+            ${PRODUCT_IDS.map(p=>`<option value="${p}" ${modalTarget.product===p?'selected':''}>${p.charAt(0).toUpperCase()+p.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Title *</label>
+        <input type="text" id="fTitle" placeholder="e.g. Night Fury Dragon — Front" value="${(modalTarget.title||'').replace(/"/g,'&quot;')}"/>
+      </div>
+      <div class="field">
+        <label>Short Description</label>
+        <input type="text" id="fDesc" placeholder="e.g. Matte black PLA, 14cm wingspan" value="${(modalTarget.desc||'').replace(/"/g,'&quot;')}"/>
+      </div>`;
+  }
+}
+
+function handlePhotoFile(e) {
+  const file = e.target.files?.[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    modalTarget.src = ev.target.result;
+    updatePreview(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function updatePreview(src) {
+  let prev = document.getElementById('modalPreview');
+  if(!prev) {
+    prev = document.createElement('img');
+    prev.id = 'modalPreview'; prev.className = 'img-preview';
+    const body = document.getElementById('modalBody');
+    body.insertBefore(prev, body.firstChild);
+  }
+  prev.src = src; prev.style.display = src ? '' : 'none';
+  modalTarget.src = src;
+}
+
+async function saveModal() {
+  if(modalMode==='add-photo'||modalMode==='edit-photo') {
+    const title = document.getElementById('fTitle')?.value.trim()||'';
+    const src   = document.getElementById('fSrc')?.value.trim()||modalTarget.src||'';
+    if(!title||!src) { showToast('Title and image are required.','error'); return; }
+    const updated = {
+      ...modalTarget,
+      title, src,
+      desc:    document.getElementById('fDesc')?.value.trim()||'',
+      cat:     document.getElementById('fCat')?.value||modalTarget.cat,
+      product: document.getElementById('fProd')?.value||modalTarget.product,
+    };
+    if(modalMode==='add-photo') {
+      DATA.photos.push(updated);
+      showToast('Photo added!','success');
+    } else {
+      DATA.photos = DATA.photos.map(p=>p.id===updated.id?updated:p);
+      showToast('Photo updated!','success');
+    }
+    await saveData(SK_PHOTOS, DATA.photos);
+    updateBadges();
+    closeModal();
+    renderPage('photos');
+  } else if(modalMode==='edit-product') {
+    const name  = document.getElementById('fProdName')?.value.trim()||'';
+    const price = parseInt(document.getElementById('fProdPrice')?.value)||0;
+    if(!name) { showToast('Product name required.','error'); return; }
+    const updated = {
+      ...modalTarget,
+      name,  price,
+      desc:   document.getElementById('fProdDesc')?.value.trim()||'',
+      stock:  parseInt(document.getElementById('fProdStock')?.value)||0,
+      active: document.getElementById('fProdActive')?.checked??true,
+    };
+    DATA.products = DATA.products.map(p=>p.id===updated.id?updated:p);
+    await saveData(SK_PRODUCTS, DATA.products);
+    showToast('Product saved!','success');
+    closeModal();
+    renderPage('products');
+  }
+}
+
+async function deletePhoto(id) {
+  askConfirm('Delete this photo?','This photo will be removed from the gallery.',async()=>{
+    DATA.photos = DATA.photos.filter(p=>p.id!==id);
+    await saveData(SK_PHOTOS, DATA.photos);
+    updateBadges();
+    showToast('Photo deleted.','error');
+    renderPage('photos');
+  });
+}
+
+function exportPhotos() {
+  const blob = new Blob([JSON.stringify(DATA.photos,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'printcraft-photos.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Photos exported!','success');
+}
+
+/* ── 7. PRODUCTS PAGE ── */
+function renderProducts() {
+  let prods = DATA.products;
+  if(searchTerm) prods = prods.filter(p=>
+    p.name.toLowerCase().includes(searchTerm)||
+    p.cat.toLowerCase().includes(searchTerm)
+  );
+
+  document.getElementById('pageBody').innerHTML = `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">Products</div>
+        <div class="section-card-actions">
+          <span style="font-size:.8rem;color:var(--text2)">${prods.filter(p=>p.active).length} active · ${prods.filter(p=>!p.active).length} hidden</span>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr>
+          <th>Product</th><th>Category</th><th>Price (৳)</th>
+          <th>Stock</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${prods.map(p=>`
+            <tr>
+              <td class="primary-col">${p.name}</td>
+              <td>${catLabel(p.cat)}</td>
+              <td style="font-family:var(--font-d);font-weight:700;color:var(--gold)">৳ ${p.price.toLocaleString()}</td>
+              <td>${p.stock}</td>
+              <td><span class="badge ${p.active?'active':'pending'}">${p.active?'Active':'Hidden'}</span></td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="btn" style="font-size:.72rem;padding:5px 12px"
+                    onclick="openEditProduct('${p.id}')">Edit</button>
+                  <button class="btn ${p.active?'danger':'green'}" style="font-size:.72rem;padding:5px 12px"
+                    onclick="toggleProduct('${p.id}')">${p.active?'Hide':'Show'}</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function openEditProduct(id) {
+  const p = DATA.products.find(x=>x.id===id); if(!p) return;
+  modalMode = 'edit-product';
+  modalTarget = {...p};
+  document.getElementById('modalTitle').textContent = 'Edit Product';
+  document.getElementById('modalSaveBtn').textContent = 'Save Product';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field">
+      <label>Product Name *</label>
+      <input type="text" id="fProdName" value="${p.name.replace(/"/g,'&quot;')}"/>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Price (BDT ৳)</label>
+        <input type="number" id="fProdPrice" value="${p.price}" min="0"/>
+      </div>
+      <div class="field">
+        <label>Stock</label>
+        <input type="number" id="fProdStock" value="${p.stock}" min="0"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="fProdDesc">${p.desc||''}</textarea>
+    </div>
+    <div class="field" style="flex-direction:row;align-items:center;gap:10px">
+      <input type="checkbox" id="fProdActive" ${p.active?'checked':''} style="width:auto;padding:0"/>
+      <label for="fProdActive" style="text-transform:none;letter-spacing:0;font-size:.88rem;color:var(--text)">Active (visible on website)</label>
+    </div>`;
+  openModal();
+}
+
+async function toggleProduct(id) {
+  const p = DATA.products.find(x=>x.id===id); if(!p) return;
+  p.active = !p.active;
+  await saveData(SK_PRODUCTS, DATA.products);
+  showToast(`Product ${p.active?'shown':'hidden'}.`,'success');
+  renderPage('products');
+}
+
+/* ── 8. ORDERS PAGE ── */
+function renderOrders() {
+  let orders = DATA.orders;
+  if(currentFilter!=='all') orders = orders.filter(o=>o.status===currentFilter);
+  if(searchTerm) orders = orders.filter(o=>
+    o.customer.toLowerCase().includes(searchTerm)||
+    o.product.toLowerCase().includes(searchTerm)||
+    o.id.toLowerCase().includes(searchTerm)
+  );
+  orders = [...orders].sort((a,b)=>b.date.localeCompare(a.date));
+
+  document.getElementById('pageBody').innerHTML = `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">WhatsApp Orders</div>
+        <div class="section-card-actions">
+          <button class="btn" onclick="openAddOrder()">+ Add Order</button>
+          <button class="btn" onclick="exportOrders()">⬇ Export CSV</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        ${[{id:'all',label:'All orders'},
+           {id:'new',label:'🆕 New'},
+           {id:'active',label:'⚙️ In Progress'},
+           {id:'pending',label:'⏳ Pending'},
+           {id:'done',label:'✅ Done'}].map(f=>`
+          <button class="filter-pill ${currentFilter===f.id?'active':''}"
+            onclick="currentFilter='${f.id}';renderPage('orders')">${f.label}</button>`
+        ).join('')}
+      </div>
+      ${orders.length===0?`
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h4>No orders found</h4>
+          <p>Orders placed via WhatsApp will appear here.</p>
+        </div>
+      `:`
+      <table class="data-table">
+        <thead><tr>
+          <th>ID</th><th>Customer</th><th>Product</th>
+          <th>Qty</th><th>৳</th><th>Date</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${orders.map(o=>`
+            <tr>
+              <td><code style="font-size:.72rem;color:var(--accent2)">${o.id}</code></td>
+              <td class="primary-col">
+                <div>${o.customer}</div>
+                <div style="font-size:.72rem;color:var(--text3)">${o.phone}</div>
+              </td>
+              <td>${o.product}</td>
+              <td>${o.qty}</td>
+              <td style="font-weight:600;color:var(--gold)">৳${o.price.toLocaleString()}</td>
+              <td style="font-size:.78rem">${o.date}</td>
+              <td><span class="badge ${o.status}">${o.status}</span></td>
+              <td>
+                <div style="display:flex;gap:5px;flex-wrap:wrap">
+                  <button class="btn" style="font-size:.7rem;padding:4px 10px"
+                    onclick="viewOrder('${o.id}')">View</button>
+                  <select style="font-size:.7rem;padding:4px 8px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text)"
+                    onchange="updateOrderStatus('${o.id}',this.value)">
+                    <option value="new"     ${o.status==='new'?'selected':''}>New</option>
+                    <option value="active"  ${o.status==='active'?'selected':''}>Active</option>
+                    <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+                    <option value="done"    ${o.status==='done'?'selected':''}>Done</option>
+                  </select>
+                  <button class="btn danger" style="font-size:.7rem;padding:4px 10px"
+                    onclick="deleteOrder('${o.id}')">Del</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </div>`;
+}
+
+function viewOrder(id) {
+  const o = DATA.orders.find(x=>x.id===id); if(!o) return;
+  modalMode = 'view-order';
+  modalTarget = o;
+  document.getElementById('modalTitle').textContent = `Order ${o.id}`;
+  document.getElementById('modalSaveBtn').textContent = 'Close';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      ${[
+        ['Order ID', `<code style="color:var(--accent2)">${o.id}</code>`],
+        ['Customer', `<strong>${o.customer}</strong>`],
+        ['Phone / WhatsApp', `<a href="https://wa.me/${o.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--green)">${o.phone}</a>`],
+        ['Product', o.product],
+        ['Quantity', o.qty],
+        ['Total Price', `<span style="font-family:var(--font-d);color:var(--gold)">৳ ${o.price.toLocaleString()}</span>`],
+        ['Order Date', o.date],
+        ['Status', `<span class="badge ${o.status}">${o.status}</span>`],
+        ['Notes', o.note||'—'],
+      ].map(([k,v])=>`
+        <div style="display:flex;align-items:flex-start;gap:16px;padding:12px 14px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+          <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);width:120px;flex-shrink:0;margin-top:1px">${k}</span>
+          <span style="font-size:.88rem;color:var(--text)">${v}</span>
+        </div>`).join('')}
+      <a href="https://wa.me/${o.phone.replace(/\D/g,'')}?text=${encodeURIComponent(`Hello ${o.customer}! Your PrintCraft BD order (${o.id}) for ${o.product} is being processed. We'll update you soon!`)}"
+        target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:50px;background:#25D366;color:#fff;font-weight:700;text-decoration:none;margin-top:4px">
+        💬 Message Customer on WhatsApp
+      </a>
+    </div>`;
+  openModal();
+}
+
+function openAddOrder() {
+  modalMode = 'add-order';
+  modalTarget = {id:'ORD'+String(DATA.orders.length+1).padStart(3,'0'), customer:'', phone:'', product:'', qty:1, price:0, status:'new', date:new Date().toISOString().slice(0,10), note:''};
+  document.getElementById('modalTitle').textContent = 'Add Order';
+  document.getElementById('modalSaveBtn').textContent = 'Add Order';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field-row">
+      <div class="field"><label>Customer Name</label><input type="text" id="oName" placeholder="Full name"/></div>
+      <div class="field"><label>Phone / WhatsApp</label><input type="text" id="oPhone" placeholder="+880 17XX XXX XXX"/></div>
+    </div>
+    <div class="field"><label>Product</label>
+      <select id="oProd">${DATA.products.map(p=>`<option value="${p.name}">${p.name}</option>`).join('')}</select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Quantity</label><input type="number" id="oQty" value="1" min="1"/></div>
+      <div class="field"><label>Total Price (৳)</label><input type="number" id="oPrice" placeholder="650" min="0"/></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="oNote" placeholder="Colour preference, size, delivery notes…"></textarea></div>`;
+  openModal();
+  // override save
+  document.getElementById('modalSaveBtn').onclick = async function() {
+    const o = {
+      id: modalTarget.id,
+      customer: document.getElementById('oName').value.trim(),
+      phone:    document.getElementById('oPhone').value.trim(),
+      product:  document.getElementById('oProd').value,
+      qty:      parseInt(document.getElementById('oQty').value)||1,
+      price:    parseInt(document.getElementById('oPrice').value)||0,
+      status:   'new',
+      date:     modalTarget.date,
+      note:     document.getElementById('oNote').value.trim(),
+    };
+    if(!o.customer||!o.phone) { showToast('Customer name and phone required.','error'); return; }
+    DATA.orders.push(o);
+    await saveData(SK_ORDERS, DATA.orders);
+    updateBadges();
+    showToast('Order added!','success');
+    closeModal();
+    renderPage('orders');
+  };
+}
+
+async function updateOrderStatus(id, status) {
+  const o = DATA.orders.find(x=>x.id===id); if(!o) return;
+  o.status = status;
+  await saveData(SK_ORDERS, DATA.orders);
+  updateBadges();
+  showToast(`Order marked as ${status}.`,'success');
+}
+
+async function deleteOrder(id) {
+  askConfirm('Delete this order?','Order data will be permanently removed.',async()=>{
+    DATA.orders = DATA.orders.filter(o=>o.id!==id);
+    await saveData(SK_ORDERS, DATA.orders);
+    updateBadges();
+    showToast('Order deleted.','error');
+    renderPage('orders');
+  });
+}
+
+function exportOrders() {
+  const rows = ['ID,Customer,Phone,Product,Qty,Price,Status,Date,Notes'];
+  DATA.orders.forEach(o=>rows.push(`${o.id},"${o.customer}","${o.phone}","${o.product}",${o.qty},${o.price},${o.status},${o.date},"${o.note}"`));
+  const blob = new Blob([rows.join('\n')],{type:'text/csv'});
+  const a = document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='printcraft-orders.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Orders exported!','success');
+}
+
+/* ── 9. USERS PAGE ── */
+function renderUsers() {
+  document.getElementById('pageBody').innerHTML = `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">Admin Users</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Password</th><th>Status</th></tr></thead>
+        <tbody>
+          ${ADMIN_USERS.map(u=>`
+            <tr>
+              <td class="primary-col"><code style="color:var(--accent2)">${u.username}</code></td>
+              <td>${u.name}</td>
+              <td><span class="badge ${u.role==='Owner'?'active':'pending'}">${u.role}</span></td>
+              <td style="color:var(--text3);font-size:.78rem">••••••••</td>
+              <td><span class="badge active">Active</span></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      <div style="padding:20px;border-top:1px solid var(--border)">
+        <div style="background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.25);border-radius:10px;padding:14px 18px;">
+          <div style="font-size:.85rem;font-weight:600;color:var(--orange);margin-bottom:6px">⚠ To add or change users</div>
+          <div style="font-size:.82rem;color:var(--text2);line-height:1.7">
+            Open <code style="color:var(--accent2)">admin.html</code> in a text editor.<br/>
+            Find the <code style="color:var(--accent2)">ADMIN_USERS</code> array near the top of the &lt;script&gt; section.<br/>
+            Add a new <code style="color:var(--accent2)">{username, password, role, name}</code> object and save the file.<br/>
+            Re-upload to GitHub to deploy the changes.
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── 10. SETTINGS PAGE ── */
+function renderSettings() {
+  const s = DATA.settings;
+  document.getElementById('pageBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="section-card">
+        <div class="section-card-header"><div class="section-card-title">Business Info</div></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div class="field"><label>Business Name</label>
+            <input type="text" id="sBizName" value="${s.bizName||'PrintCraftBD'}"/></div>
+          <div class="field"><label>WhatsApp Number</label>
+            <input type="tel" id="sWa" value="${s.waNumber||'+880 17XX XXX XXX'}"/></div>
+          <div class="field"><label>Email</label>
+            <input type="email" id="sEmail" value="${s.email||'hello@printcraftbd.com'}"/></div>
+          <div class="field"><label>Location</label>
+            <input type="text" id="sLocation" value="${s.location||'Dhaka, Bangladesh'}"/></div>
+          <button class="btn primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header"><div class="section-card-title">Data Management</div></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <button class="btn" onclick="exportPhotos()">⬇ Export all photos (JSON)</button>
+          <button class="btn" onclick="exportOrders()">⬇ Export all orders (CSV)</button>
+          <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
+            <div style="font-size:.75rem;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Danger Zone</div>
+            <button class="btn danger" onclick="resetOrders()">🗑 Clear all orders</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function saveSettings() {
+  DATA.settings = {
+    ...DATA.settings,
+    bizName:    document.getElementById('sBizName')?.value||'',
+    waNumber:   document.getElementById('sWa')?.value||'',
+    email:      document.getElementById('sEmail')?.value||'',
+    location:   document.getElementById('sLocation')?.value||'',
+  };
+  await saveData(SK_SETTINGS, [DATA.settings]);
+  showToast('Settings saved!','success');
+}
+
+async function resetOrders() {
+  askConfirm('Clear all orders?','All order records will be permanently deleted.',async()=>{
+    DATA.orders = [];
+    await saveData(SK_ORDERS, DATA.orders);
+    updateBadges();
+    showToast('All orders cleared.','error');
+    renderPage('orders');
+  });
+}
+
+/* ── 11. MODAL ── */
+function openModal() {
+  document.getElementById('editModal').classList.add('open');
+  document.getElementById('modalSaveBtn').onclick = saveModal;
+}
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+  modalMode = null; modalTarget = null;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('editModal').addEventListener('click',e=>{
+    if(e.target===e.currentTarget) closeModal();
+  });
+  document.getElementById('confirmBox').addEventListener('click',e=>{
+    if(e.target===e.currentTarget) closeConfirm();
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){closeModal();closeConfirm();}
+  });
+});
+
+/* ── 12. TOAST & CONFIRM ── */
+let toastTimer;
+function showToast(msg, type='success') {
+  clearTimeout(toastTimer);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  toastTimer = setTimeout(()=>{ t.className=''; }, 3000);
+}
+
+let confirmCallback = null;
+function askConfirm(title, msg, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = cb;
+  document.getElementById('confirmBox').classList.add('open');
+  document.getElementById('confirmYes').onclick = async()=>{ closeConfirm(); await cb(); };
+}
+function closeConfirm() {
+  document.getElementById('confirmBox').classList.remove('open');
+  confirmCallback = null;
+}
+
+/* ── 13. THEME & MISC ── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('themeLabel').textContent = dark?'🌙 Dark mode':'☀️ Light mode';
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+/* ── 14. INIT ── */
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Keyboard: enter on login
+  document.getElementById('loginUser').addEventListener('keydown',e=>{
+    if(e.key==='Enter') document.getElementById('loginPass').focus();
+  });
+  // Auto-login from session
+  if(checkSession()) activateApp();
+});
+</script>
+</body>
+</html>
