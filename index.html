@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
 <link rel="stylesheet" href="gallery.css"/>
+<link rel="stylesheet" href="reviews.css"/>
 </head>
 <body>
 
@@ -25,6 +26,7 @@
     <li><a href="#custom"  data-en="Custom Order"   data-bn="কাস্টম অর্ডার">Custom Order</a></li>
     <li><a href="#how"     data-en="How It Works"   data-bn="কিভাবে কাজ করে">How It Works</a></li>
     <li><a href="#photo-gallery" data-en="Gallery" data-bn="গ্যালারি">Gallery</a></li>
+    <li><a href="#reviews" data-en="Reviews" data-bn="পর্যালোচনা">Reviews</a></li>
   </ul>
   <div class="nav-controls">
     <button class="toggle-btn lang-toggle" id="langToggle" aria-label="Toggle language">
@@ -424,7 +426,7 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
+<!-- TESTIMONIALS (static highlights) -->
 <section id="testimonials">
   <div class="container">
     <div class="section-header">
@@ -439,6 +441,11 @@
     </div>
     <div class="testi-dots" id="testiDots"></div>
   </div>
+</section>
+
+<!-- CUSTOMER REVIEWS (dynamic, with ratings + photos) -->
+<section id="reviews">
+  <!-- Built entirely by reviews.js -->
 </section>
 
 <!-- FOOTER -->
@@ -472,6 +479,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="gallery.js"></script>
+<script src="reviews.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

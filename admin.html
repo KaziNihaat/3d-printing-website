@@ -518,6 +518,10 @@ em{font-style:normal;color:var(--accent2)}
         <span class="nav-icon">🛒</span> Orders
         <span class="nav-badge" id="orderBadge" style="background:var(--green)">0</span>
       </button>
+      <button class="nav-item" data-page="reviews" onclick="goPage('reviews',this)">
+        <span class="nav-icon">⭐</span> Reviews
+        <span class="nav-badge" id="reviewBadge" style="background:var(--pink);display:none">0</span>
+      </button>
       <button class="nav-item" data-page="users" onclick="goPage('users',this)">
         <span class="nav-icon">👤</span> Users
       </button>
@@ -614,6 +618,7 @@ const SK_PRODUCTS = 'printcraft_products';
 const SK_ORDERS   = 'printcraft_orders';
 const SK_SETTINGS = 'printcraft_settings';
 const SK_SESSION  = 'printcraft_admin_session';
+const SK_REVIEWS  = 'printcraft_reviews_v1'; // must match reviews.js
 
 const CATS = [
   {id:'dragons',   label:'Dragons',       emoji:'🐉'},
@@ -662,12 +667,13 @@ async function saveData(key, data) {
 }
 
 /* Live data caches */
-let DATA = { photos:[], products:[], orders:[], settings:{} };
+let DATA = { photos:[], products:[], orders:[], reviews:[], settings:{} };
 
 async function loadAll() {
   DATA.photos   = await loadData(SK_PHOTOS,   null) || [];
   DATA.products = await loadData(SK_PRODUCTS, SEED_PRODUCTS);
   DATA.orders   = await loadData(SK_ORDERS,   SEED_ORDERS);
+  DATA.reviews  = await loadData(SK_REVIEWS,  null) || [];
   try {
     const s = await window.storage.get(SK_SETTINGS);
     DATA.settings = s ? JSON.parse(s.value) : {};
@@ -678,9 +684,12 @@ async function loadAll() {
 function updateBadges() {
   const pb = document.getElementById('photoBadge');
   const ob = document.getElementById('orderBadge');
+  const rb = document.getElementById('reviewBadge');
   if(pb) pb.textContent = DATA.photos.length;
   const newOrders = DATA.orders.filter(o=>o.status==='new').length;
   if(ob) { ob.textContent = newOrders; ob.style.display = newOrders>0?'':'none'; }
+  const pendingRevs = DATA.reviews.filter(r=>r.status==='pending').length;
+  if(rb) { rb.textContent = pendingRevs; rb.style.display = pendingRevs>0?'':'none'; }
 }
 
 /* ── 3. AUTH ── */
@@ -749,7 +758,7 @@ function goPage(page, btn) {
 
   const titles = {
     dashboard:'Dashboard', photos:'Photos', products:'Products',
-    orders:'Orders', users:'Users', settings:'Settings'
+    orders:'Orders', reviews:'Reviews', users:'Users', settings:'Settings'
   };
   document.getElementById('pageTitle').textContent = titles[page]||page;
   document.getElementById('pageSub').textContent = '';
@@ -769,6 +778,7 @@ function renderPage(page) {
     photos:    renderPhotos,
     products:  renderProducts,
     orders:    renderOrders,
+    reviews:   renderReviews,
     users:     renderUsers,
     settings:  renderSettings,
   };
@@ -807,6 +817,11 @@ function renderDashboard() {
         <div class="stat-card-label">New orders</div>
         <div class="stat-card-value">${newOrd}</div>
         <div class="stat-card-sub">Awaiting action</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-card-label">Pending reviews</div>
+        <div class="stat-card-value">${DATA.reviews.filter(r=>r.status==='pending').length}</div>
+        <div class="stat-card-sub">Need approval</div>
       </div>
       <div class="stat-card gold">
         <div class="stat-card-label">Total revenue</div>
@@ -1326,6 +1341,167 @@ function exportOrders() {
   a.href=URL.createObjectURL(blob); a.download='printcraft-orders.csv';
   a.click(); URL.revokeObjectURL(a.href);
   showToast('Orders exported!','success');
+}
+
+/* ── 8b. REVIEWS PAGE ── */
+let revPageFilter = 'all'; // all | pending | approved | rejected
+
+function renderReviews() {
+  let reviews = DATA.reviews;
+  if(revPageFilter !== 'all') reviews = reviews.filter(r => r.status === revPageFilter);
+  if(searchTerm) reviews = reviews.filter(r =>
+    r.name?.toLowerCase().includes(searchTerm) ||
+    r.text?.toLowerCase().includes(searchTerm) ||
+    r.productName?.toLowerCase().includes(searchTerm)
+  );
+
+  const pending  = DATA.reviews.filter(r => r.status === 'pending').length;
+  const approved = DATA.reviews.filter(r => r.status === 'approved').length;
+  const rejected = DATA.reviews.filter(r => r.status === 'rejected').length;
+  const avgRating = DATA.reviews.filter(r=>r.status==='approved').length
+    ? (DATA.reviews.filter(r=>r.status==='approved').reduce((s,r)=>s+r.rating,0) / DATA.reviews.filter(r=>r.status==='approved').length).toFixed(1)
+    : '—';
+
+  document.getElementById('pageBody').innerHTML = `
+    <div class="stats-row" style="margin-bottom:20px">
+      <div class="stat-card gold">
+        <div class="stat-card-label">Avg Rating</div>
+        <div class="stat-card-value">${avgRating} ★</div>
+        <div class="stat-card-sub">${approved} approved reviews</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-card-label">Pending Approval</div>
+        <div class="stat-card-value">${pending}</div>
+        <div class="stat-card-sub">Awaiting your decision</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-card-label">Published</div>
+        <div class="stat-card-value">${approved}</div>
+        <div class="stat-card-sub">Live on site</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-card-label">Total</div>
+        <div class="stat-card-value">${DATA.reviews.length}</div>
+        <div class="stat-card-sub">${rejected} rejected</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">Customer Reviews</div>
+        <div class="section-card-actions">
+          <button class="btn" onclick="exportReviews()">⬇ Export CSV</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        ${[
+          {id:'all',      label:'All'},
+          {id:'pending',  label:'⏳ Pending'},
+          {id:'approved', label:'✅ Approved'},
+          {id:'rejected', label:'❌ Rejected'},
+        ].map(f=>`
+          <button class="filter-pill ${revPageFilter===f.id?'active':''}"
+            onclick="revPageFilter='${f.id}';renderPage('reviews')">${f.label}</button>`
+        ).join('')}
+      </div>
+
+      ${reviews.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-icon">💬</div>
+          <h4>No reviews found</h4>
+          <p>${revPageFilter==='pending' ? 'No reviews waiting for approval.' : 'Try a different filter.'}</p>
+        </div>` : `
+        <table class="data-table">
+          <thead><tr>
+            <th>Customer</th><th>Product</th><th>Rating</th>
+            <th>Review</th><th>Photos</th><th>Date</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            ${reviews.map(r => `
+              <tr>
+                <td class="primary-col">
+                  <div>${r.name}</div>
+                  <div style="font-size:.72rem;color:var(--text3)">${r.location||''}</div>
+                </td>
+                <td style="font-size:.82rem">${r.productName||r.product}</td>
+                <td>
+                  <span style="color:var(--gold);font-size:.9rem;letter-spacing:1px">${'★'.repeat(r.rating)}</span>
+                  <span style="color:var(--border2);font-size:.9rem">${'★'.repeat(5-r.rating)}</span>
+                </td>
+                <td style="max-width:220px">
+                  <div style="font-size:.8rem;color:var(--text2);line-height:1.5;
+                    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                    "${r.text}"
+                  </div>
+                </td>
+                <td>
+                  ${r.photos && r.photos.length ? `
+                    <div style="display:flex;gap:4px">
+                      ${r.photos.slice(0,2).map(src=>`
+                        <img src="${src}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:zoom-in"
+                          onclick="window.open('${src}','_blank')"
+                          onerror="this.style.display='none'"/>`).join('')}
+                      ${r.photos.length>2?`<span style="font-size:.7rem;color:var(--text3);align-self:center">+${r.photos.length-2}</span>`:''}
+                    </div>` : '<span style="color:var(--text3);font-size:.75rem">None</span>'}
+                </td>
+                <td style="font-size:.78rem">${r.date}</td>
+                <td><span class="badge ${r.status==='approved'?'active':r.status==='pending'?'pending':'done'}">${r.status}</span></td>
+                <td>
+                  <div style="display:flex;gap:5px;flex-wrap:wrap">
+                    ${r.status !== 'approved' ? `
+                      <button class="btn green" style="font-size:.7rem;padding:4px 10px"
+                        onclick="approveReview('${r.id}')">✅ Approve</button>` : ''}
+                    ${r.status !== 'rejected' ? `
+                      <button class="btn danger" style="font-size:.7rem;padding:4px 10px"
+                        onclick="rejectReview('${r.id}')">❌ Reject</button>` : ''}
+                    <button class="btn" style="font-size:.7rem;padding:4px 10px"
+                      onclick="deleteReview('${r.id}')">🗑</button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`}
+    </div>`;
+}
+
+async function approveReview(id) {
+  const r = DATA.reviews.find(x => x.id === id); if(!r) return;
+  r.status = 'approved';
+  await saveData(SK_REVIEWS, DATA.reviews);
+  updateBadges();
+  showToast('Review approved and published!', 'success');
+  renderPage('reviews');
+}
+
+async function rejectReview(id) {
+  const r = DATA.reviews.find(x => x.id === id); if(!r) return;
+  r.status = 'rejected';
+  await saveData(SK_REVIEWS, DATA.reviews);
+  updateBadges();
+  showToast('Review rejected.', 'error');
+  renderPage('reviews');
+}
+
+async function deleteReview(id) {
+  askConfirm('Delete this review?', 'This review will be permanently removed.', async () => {
+    DATA.reviews = DATA.reviews.filter(r => r.id !== id);
+    await saveData(SK_REVIEWS, DATA.reviews);
+    updateBadges();
+    showToast('Review deleted.', 'error');
+    renderPage('reviews');
+  });
+}
+
+function exportReviews() {
+  const rows = ['ID,Customer,Location,Product,Rating,Review,Photos,Date,Status'];
+  DATA.reviews.forEach(r => rows.push(
+    `"${r.id}","${r.name}","${r.location||''}","${r.productName||r.product}",${r.rating},"${r.text.replace(/"/g,"'")}",${r.photos?.length||0},"${r.date}","${r.status}"`
+  ));
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'printcraft-reviews.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Reviews exported!', 'success');
 }
 
 /* ── 9. USERS PAGE ── */
