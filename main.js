@@ -82,112 +82,442 @@ function initLang(){
   $('#langToggle').addEventListener('click',()=>apply(state.lang==='en'?'bn':'en'));
 }
 
-/* ─── 6. HERO SCENE ─── */
+/* ─── 6. HERO SCENE — Premium 3D Experience ───
+   Objects: Dragon · Kitten · Dino · Keychain
+   Features:
+   - Per-object soft glow point lights
+   - Smooth mouse parallax (lerped camera drift)
+   - Elegant floating + slow rotation per object
+   - Depth layering (near/mid/far positions)
+   - 120 ambient particles with two colour pools
+   - Reduced pixel ratio on mobile for perf
+──────────────────────────────────────────── */
 function initHeroScene(){
-  const canvas=$('#heroCanvas');
-  if(!canvas||typeof THREE==='undefined') return;
-  const W=()=>innerWidth, H=()=>innerHeight;
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setSize(W(),H());
-  renderer.setClearColor(0,0);
+  const canvas = $('#heroCanvas');
+  if(!canvas || typeof THREE === 'undefined') return;
 
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(60,W()/H(),.1,100);
-  camera.position.z=5;
+  /* ── Renderer ── */
+  const isMobile = window.innerWidth < 768;
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha:     true,
+    antialias: !isMobile,   // skip AA on mobile
+    powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.5 : 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x000000, 0);   // transparent — CSS bg shows through
+  renderer.shadowMap.enabled = false;    // shadows too expensive for hero
 
-  scene.add(new THREE.AmbientLight(0xffffff,.4));
-  const dl=new THREE.DirectionalLight(0x7c5cff,1.8); dl.position.set(3,5,3); scene.add(dl);
-  const pl1=new THREE.PointLight(0x00d4ff,1.5,12); pl1.position.set(-3,2,2); scene.add(pl1);
-  const pl2=new THREE.PointLight(0xff4da6,1.0,10); pl2.position.set(4,-2,1); scene.add(pl2);
+  /* ── Scene & Camera ── */
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 80);
+  camera.position.set(0, 0, 5.5);
 
-  const mat=(c,e=0)=>new THREE.MeshStandardMaterial({color:c,emissive:e,emissiveIntensity:.2,roughness:.3,metalness:.6});
+  /* ── Lighting ──
+     One ambient + four coloured point lights
+     positioned around the scene for rim lighting.  */
+  const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+  scene.add(ambient);
 
-  // Dragon
-  const dg=new THREE.Group();
-  const dBody=new THREE.Mesh(new THREE.SphereGeometry(.36,16,12),mat(0x7c5cff,0x3a1a80));
-  dBody.scale.set(1,1.3,.9); dg.add(dBody);
-  const dHead=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),mat(0x7c5cff));
-  dHead.scale.set(1.1,1,.85); dHead.position.set(0,.52,.18); dg.add(dHead);
-  const snout=new THREE.Mesh(new THREE.ConeGeometry(.1,.2,8),mat(0x5a3db5));
-  snout.rotation.x=Math.PI/2; snout.position.set(0,.52,.42); dg.add(snout);
-  const ws=new THREE.Shape(); ws.moveTo(0,0); ws.lineTo(.6,.5); ws.lineTo(.5,-.3);
-  const wm=new THREE.MeshStandardMaterial({color:0xb084ff,side:THREE.DoubleSide,transparent:true,opacity:.8,roughness:.4});
-  const wL=new THREE.Mesh(new THREE.ShapeGeometry(ws),wm); wL.position.set(-.35,.1,0); wL.rotation.y=-.3; dg.add(wL);
-  const wR=wL.clone(); wR.position.x=.35; wR.rotation.y=Math.PI+.3; wR.scale.x=-1; dg.add(wR);
-  const tail=new THREE.Mesh(new THREE.CylinderGeometry(.06,.01,.55,8),mat(0x7c5cff));
-  tail.rotation.z=Math.PI/4; tail.position.set(.25,-.55,0); dg.add(tail);
-  dg.position.set(1.6,.3,-.5); scene.add(dg);
+  // Main fill — warm purple from top-right
+  const fillLight = new THREE.DirectionalLight(0x9966ff, 1.4);
+  fillLight.position.set(4, 6, 3);
+  scene.add(fillLight);
 
-  // Elephant
-  const eg=new THREE.Group();
-  const em=mat(0x00d4ff,0x003d4f);
-  eg.add(new THREE.Mesh(new THREE.SphereGeometry(.3,14,10),em));
-  const eH=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),em); eH.position.set(0,.38,.15); eg.add(eH);
-  const tr=new THREE.Mesh(new THREE.CylinderGeometry(.06,.04,.35,8),em);
-  tr.rotation.x=Math.PI/2; tr.position.set(0,.28,.45); eg.add(tr);
-  const earM=new THREE.MeshStandardMaterial({color:0x00b8d9,side:THREE.DoubleSide});
-  const eaL=new THREE.Mesh(new THREE.CircleGeometry(.15,12),earM); eaL.position.set(-.28,.4,.05); eaL.rotation.y=.4; eg.add(eaL);
-  const eaR=eaL.clone(); eaR.position.x=.28; eaR.rotation.y=-.4; eg.add(eaR);
-  eg.position.set(-1.9,-.2,.2); scene.add(eg);
+  // Cyan rim — bottom-left
+  const rimCyan = new THREE.PointLight(0x00d4ff, 2.2, 14);
+  rimCyan.position.set(-4, -1, 2);
+  scene.add(rimCyan);
 
-  // Snake
-  const sg=new THREE.Group();
-  const sm=mat(0x1bea8a,0x074433);
-  const spts=[];
-  for(let i=0;i<40;i++){const t=i/39; spts.push(new THREE.Vector3(Math.sin(t*Math.PI*3)*.28,t*.7-.35,Math.cos(t*Math.PI*2)*.12));}
-  sg.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(spts),60,.055,8,false),sm));
-  sg.position.set(-.3,-.5,.8); scene.add(sg);
+  // Pink accent — far right
+  const rimPink = new THREE.PointLight(0xff4da6, 1.4, 12);
+  rimPink.position.set(5, 1, -1);
+  scene.add(rimPink);
 
-  // Keychain
-  const kg=new THREE.Group();
-  const km=mat(0xffd700,0x806600);
-  kg.add(new THREE.Mesh(new THREE.TorusGeometry(.18,.04,8,24),km));
-  const kTag=new THREE.Mesh(new THREE.BoxGeometry(.18,.22,.05),mat(0x00d4ff)); kTag.position.y=-.28; kg.add(kTag);
-  kg.position.set(.6,-.8,.6); scene.add(kg);
+  // Warm gold — bottom centre (keychain hero)
+  const rimGold = new THREE.PointLight(0xffd700, 0.9, 8);
+  rimGold.position.set(0.5, -2.5, 2);
+  scene.add(rimGold);
 
-  // Action figure
-  const fg=new THREE.Group();
-  const fm=mat(0xff4da6,0x7a0040), fa=mat(0xffd700);
-  fg.add(new THREE.Mesh(new THREE.BoxGeometry(.22,.3,.15),fm));
-  const fH=new THREE.Mesh(new THREE.SphereGeometry(.12,12,10),fm); fH.position.y=.26; fg.add(fH);
-  const aG=new THREE.CylinderGeometry(.04,.035,.26,8);
-  const aL2=new THREE.Mesh(aG,fm); aL2.position.set(-.17,.05,0); aL2.rotation.z=.5; fg.add(aL2);
-  const aR2=aL2.clone(); aR2.position.x=.17; aR2.rotation.z=-.5; fg.add(aR2);
-  const lG=new THREE.CylinderGeometry(.05,.04,.28,8);
-  const lL2=new THREE.Mesh(lG,fm); lL2.position.set(-.08,-.28,0); fg.add(lL2);
-  const lR2=lL2.clone(); lR2.position.x=.08; fg.add(lR2);
-  fg.add(new THREE.Mesh(new THREE.BoxGeometry(.24,.05,.16),fa));
-  fg.position.set(-.6,.6,.4); scene.add(fg);
+  /* ── Shared material factory ── */
+  function mat(color, emissive = 0x000000, emissiveIntensity = 0.18) {
+    return new THREE.MeshStandardMaterial({
+      color, emissive, emissiveIntensity,
+      roughness: 0.28,
+      metalness: 0.55,
+    });
+  }
+  function matGlass(color) {
+    return new THREE.MeshStandardMaterial({
+      color, transparent: true, opacity: 0.78,
+      roughness: 0.1, metalness: 0.0,
+      side: THREE.DoubleSide,
+    });
+  }
 
-  // Particles
-  const pPos=new Float32Array(80*3);
-  for(let i=0;i<80;i++){pPos[i*3]=(Math.random()-.5)*12;pPos[i*3+1]=(Math.random()-.5)*8;pPos[i*3+2]=(Math.random()-.5)*6-2;}
-  const pGeo=new THREE.BufferGeometry(); pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
-  const particles=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x7c5cff,size:.04,transparent:true,opacity:.6}));
-  scene.add(particles);
+  /* ════════════════════════════════════════
+     OBJECT 1 — NIGHT FURY DRAGON
+     Position: right side, mid depth
+  ════════════════════════════════════════ */
+  const dragon = new THREE.Group();
 
-  const clock=new THREE.Clock();
+  // Body
+  const dBody = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 14), mat(0x1a0a38, 0x5522aa));
+  dBody.scale.set(1, 1.28, 0.88);
+  dragon.add(dBody);
+
+  // Neck
+  const dNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 0.32, 10), mat(0x1a0a38));
+  dNeck.position.set(0, 0.54, 0.12);
+  dNeck.rotation.x = -0.3;
+  dragon.add(dNeck);
+
+  // Head
+  const dHead = new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 12), mat(0x1a0a38));
+  dHead.scale.set(1.12, 0.9, 0.88);
+  dHead.position.set(0, 0.76, 0.24);
+  dragon.add(dHead);
+
+  // Snout
+  const dSnout = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.22, 8), mat(0x110728));
+  dSnout.rotation.x = Math.PI / 2;
+  dSnout.position.set(0, 0.74, 0.52);
+  dragon.add(dSnout);
+
+  // Wings — translucent purple glass
+  const wShape = new THREE.Shape();
+  wShape.moveTo(0, 0);
+  wShape.bezierCurveTo(0.4, 0.6, 0.9, 0.5, 0.85, -0.05);
+  wShape.bezierCurveTo(0.7, -0.4, 0.2, -0.3, 0, 0);
+  const wingMat = matGlass(0x6633cc);
+  wingMat.emissive    = new THREE.Color(0x330066);
+  wingMat.emissiveIntensity = 0.12;
+  const wL = new THREE.Mesh(new THREE.ShapeGeometry(wShape), wingMat);
+  wL.position.set(-0.44, 0.15, 0.05);
+  wL.rotation.y = -0.22;
+  dragon.add(wL);
+  const wR = wL.clone();
+  wR.position.x = 0.44;
+  wR.scale.x = -1;
+  wR.rotation.y = Math.PI + 0.22;
+  dragon.add(wR);
+
+  // Tail (curve)
+  const tPoints = [];
+  for(let i = 0; i < 14; i++){
+    const t = i / 13;
+    tPoints.push(new THREE.Vector3(
+      0.22 * Math.sin(t * 2.2),
+      -0.48 - t * 0.52,
+      0.06 * Math.cos(t * 3)
+    ));
+  }
+  dragon.add(new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tPoints), 14, 0.058, 7),
+    mat(0x1a0a38)
+  ));
+
+  // Eye glow
+  const eyeMat = new THREE.MeshStandardMaterial({
+    color: 0x00d4ff,
+    emissive: 0x00d4ff,
+    emissiveIntensity: 1.8,
+    roughness: 0,
+  });
+  const eL = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), eyeMat);
+  eL.position.set(-0.1, 0.78, 0.46);
+  dragon.add(eL);
+  const eR = eL.clone(); eR.position.x = 0.1; dragon.add(eR);
+
+  // Place dragon: right, slightly above centre, mid-far depth
+  dragon.position.set(2.0, 0.5, -0.6);
+  dragon.rotation.y = -0.3;
+  scene.add(dragon);
+
+  /* ════════════════════════════════════════
+     OBJECT 2 — CUTE KITTEN
+     Position: left side, near
+  ════════════════════════════════════════ */
+  const kitten = new THREE.Group();
+
+  const kMat  = mat(0xffcce8, 0x992244, 0.1);
+  const kBody = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 12), kMat);
+  kBody.scale.set(1, 0.94, 1.0);
+  kitten.add(kBody);
+
+  const kHead = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 12), kMat);
+  kHead.position.set(0, 0.5, 0.08);
+  kitten.add(kHead);
+
+  // Big eyes (white + iris + pupil)
+  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+  const irisMat  = new THREE.MeshStandardMaterial({
+    color: 0x00aaff, emissive: 0x003366, roughness: 0.05,
+  });
+  const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000815, roughness: 0.1 });
+  [[-0.1, 0.1], [0.1, 0.1]].forEach(([x]) => {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), whiteMat);
+    w.position.set(x, 0.54, 0.26);
+    kitten.add(w);
+    const ir = new THREE.Mesh(new THREE.SphereGeometry(0.082, 10, 10), irisMat);
+    ir.position.set(x, 0.54, 0.33);
+    kitten.add(ir);
+    const pu = new THREE.Mesh(new THREE.SphereGeometry(0.048, 8, 8), pupilMat);
+    pu.position.set(x, 0.54, 0.38);
+    kitten.add(pu);
+  });
+
+  // Ears
+  const earShape = new THREE.Shape();
+  earShape.moveTo(0, 0); earShape.lineTo(0.1, 0.22); earShape.lineTo(0.2, 0);
+  const earMat = new THREE.MeshStandardMaterial({ color: 0xff99cc, side: THREE.DoubleSide });
+  const eaL = new THREE.Mesh(new THREE.ShapeGeometry(earShape), earMat);
+  eaL.position.set(-0.26, 0.74, 0.06); eaL.rotation.z = -0.12;
+  kitten.add(eaL);
+  const eaR = eaL.clone(); eaR.position.x = 0.16; eaR.scale.x = -1; kitten.add(eaR);
+
+  // Curly tail
+  const kTailPts = [];
+  for(let i = 0; i < 18; i++){
+    const t = i / 17;
+    kTailPts.push(new THREE.Vector3(
+      -0.36 + t * 0.28 + Math.sin(t * Math.PI) * 0.22,
+      -0.32 + Math.sin(t * Math.PI * 1.2) * 0.24,
+      0
+    ));
+  }
+  kitten.add(new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(kTailPts), 18, 0.045, 7),
+    kMat
+  ));
+
+  // Nose
+  const noseMat = new THREE.MeshStandardMaterial({ color: 0xff6699, roughness: 0.3 });
+  kitten.add(Object.assign(new THREE.Mesh(new THREE.SphereGeometry(0.026, 8, 8), noseMat), {
+    position: new THREE.Vector3(0, 0.46, 0.4)
+  }));
+
+  kitten.position.set(-2.1, -0.1, 0.3);
+  scene.add(kitten);
+
+  /* ════════════════════════════════════════
+     OBJECT 3 — CUTE MINI DINO (chibi)
+     Position: far left, back
+  ════════════════════════════════════════ */
+  const dino = new THREE.Group();
+  const dinoMat = mat(0x22cc77, 0x0a4422, 0.15);
+
+  // Big chibi head
+  const dinoHead = new THREE.Mesh(new THREE.SphereGeometry(0.38, 16, 14), dinoMat);
+  dinoHead.position.y = 0.18;
+  dino.add(dinoHead);
+
+  // Small round body
+  const dinoBody = new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 12), dinoMat);
+  dinoBody.scale.set(1, 0.78, 1);
+  dinoBody.position.y = -0.32;
+  dino.add(dinoBody);
+
+  // Huge cute eyes
+  const dinoWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+  const dinoIris  = new THREE.MeshStandardMaterial({
+    color: 0xffee00, emissive: 0x885500, roughness: 0.15,
+  });
+  const dinoPupil = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  [[-0.15, 0.15], [0.15, 0.15]].forEach(([x]) => {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), dinoWhite);
+    w.position.set(x, 0.24, 0.32);
+    dino.add(w);
+    const ir = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), dinoIris);
+    ir.position.set(x, 0.24, 0.4);
+    dino.add(ir);
+    const pu = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), dinoPupil);
+    pu.position.set(x, 0.24, 0.46);
+    dino.add(pu);
+  });
+
+  // Big happy smile (torus arc)
+  const smileMat = new THREE.MeshStandardMaterial({ color: 0x006633, roughness: 0.4 });
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.022, 6, 14, Math.PI), smileMat);
+  smile.rotation.z = Math.PI;
+  smile.position.set(0, 0.04, 0.4);
+  dino.add(smile);
+
+  // Tiny arms
+  const armG = new THREE.CylinderGeometry(0.046, 0.038, 0.2, 8);
+  const armL = new THREE.Mesh(armG, dinoMat);
+  armL.position.set(-0.3, -0.16, 0.06); armL.rotation.z = 0.8;
+  dino.add(armL);
+  const armR = armL.clone(); armR.position.x = 0.3; armR.rotation.z = -0.8;
+  dino.add(armR);
+
+  // Dorsal spikes
+  const spkMat = mat(0x18aa55);
+  for(let i = 0; i < 3; i++){
+    const spk = new THREE.Mesh(new THREE.ConeGeometry(0.034, 0.12, 6), spkMat);
+    spk.position.set(0, 0.42 - i * 0.08, -0.28 + i * 0.04);
+    dino.add(spk);
+  }
+
+  dino.position.set(-0.4, -0.9, -1.2);
+  scene.add(dino);
+
+  /* ════════════════════════════════════════
+     OBJECT 4 — GOLD KEYCHAIN + STAR
+     Position: right bottom, near
+  ════════════════════════════════════════ */
+  const keychain = new THREE.Group();
+  const goldMat  = mat(0xffd700, 0x886600, 0.25);
+  goldMat.metalness = 0.92;
+  goldMat.roughness = 0.08;
+
+  // Ring
+  keychain.add(new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.055, 10, 28), goldMat));
+
+  // Chain link
+  const chainLink = new THREE.Mesh(
+    new THREE.TorusGeometry(0.058, 0.022, 7, 14),
+    goldMat
+  );
+  chainLink.rotation.x = Math.PI / 2;
+  chainLink.position.y = -0.1;
+  keychain.add(chainLink);
+
+  // Tag (rectangular with rounded look)
+  const tagMat = new THREE.MeshStandardMaterial({
+    color: 0x00d4ff, emissive: 0x003344,
+    roughness: 0.2, metalness: 0.6,
+    emissiveIntensity: 0.25,
+  });
+  const tag = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.36, 0.065), tagMat);
+  tag.position.y = -0.46;
+  keychain.add(tag);
+
+  // Star on tag (extruded)
+  const starShape = new THREE.Shape();
+  for(let i = 0; i < 5; i++){
+    const outerA = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+    const innerA = outerA + Math.PI / 5;
+    i === 0
+      ? starShape.moveTo(Math.cos(outerA) * 0.09, Math.sin(outerA) * 0.09)
+      : starShape.lineTo(Math.cos(outerA) * 0.09, Math.sin(outerA) * 0.09);
+    starShape.lineTo(Math.cos(innerA) * 0.042, Math.sin(innerA) * 0.042);
+  }
+  starShape.closePath();
+  const star = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(starShape, { depth: 0.04, bevelEnabled: false }),
+    goldMat
+  );
+  star.position.set(-0.013, -0.46, 0.055);
+  keychain.add(star);
+
+  keychain.position.set(1.1, -1.1, 0.7);
+  scene.add(keychain);
+
+  /* ════════════════════════════════════════
+     PARTICLES — two pools, two colours
+     Pool A: purple/violet (background)
+     Pool B: cyan specks (foreground)
+  ════════════════════════════════════════ */
+  function makeParticles(count, color, sizeVal, spread, zOffset) {
+    const positions = new Float32Array(count * 3);
+    for(let i = 0; i < count; i++){
+      positions[i*3]   = (Math.random() - 0.5) * spread[0];
+      positions[i*3+1] = (Math.random() - 0.5) * spread[1];
+      positions[i*3+2] = (Math.random() - 0.5) * spread[2] + zOffset;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return new THREE.Points(geo, new THREE.PointsMaterial({
+      color, size: sizeVal, transparent: true, opacity: 0.55,
+    }));
+  }
+  const particlesBg = makeParticles(90, 0x7c5cff, 0.038, [14, 9, 7], -2.5);
+  const particlesFg = makeParticles(40, 0x00d4ff, 0.025, [ 9, 7, 4],  0.5);
+  scene.add(particlesBg);
+  scene.add(particlesFg);
+
+  /* ════════════════════════════════════════
+     ANIMATION LOOP
+  ════════════════════════════════════════ */
+  const clock = new THREE.Clock();
+  let paused = false;
+
+  // Pause when tab is hidden (battery + GPU saving)
+  document.addEventListener('visibilitychange', () => {
+    paused = document.hidden;
+    if(!paused) clock.getDelta(); // discard accumulated time
+  });
+
   (function loop(){
     requestAnimationFrame(loop);
-    const t=clock.getElapsedTime();
-    camera.rotation.y=lerp(camera.rotation.y,state.mouse.nx*.25,.04);
-    camera.rotation.x=lerp(camera.rotation.x,state.mouse.ny*.15,.04);
-    dg.rotation.y=t*.4; dg.position.y=.3+Math.sin(t*.7)*.18;
-    wL.rotation.z=-.3+Math.sin(t*2.5)*.25; wR.rotation.z=.3-Math.sin(t*2.5)*.25;
-    eg.rotation.y=-t*.25; eg.position.y=-.2+Math.sin(t*.9+1)*.15;
-    sg.rotation.y=t*.5; sg.position.y=-.5+Math.sin(t*1.1)*.12;
-    kg.rotation.y=t*.8; kg.position.y=-.8+Math.sin(t*1.4+2)*.2;
-    fg.rotation.y=-t*.35; fg.position.y=.6+Math.sin(t*.8+3)*.14;
-    particles.rotation.y=t*.02;
-    pl1.intensity=1.5+Math.sin(t*1.2)*.4;
-    pl2.intensity=1.0+Math.sin(t*.9+2)*.3;
-    renderer.render(scene,camera);
+    if(paused) return;
+
+    const t = clock.getElapsedTime();
+
+    /* ── Smooth mouse parallax ──
+       Camera drifts very gently toward mouse position.
+       Max offset: ±0.22 Y, ±0.16 X — barely perceptible
+       but adds real sense of depth.                      */
+    camera.rotation.y = lerp(camera.rotation.y, state.mouse.nx * 0.22, 0.028);
+    camera.rotation.x = lerp(camera.rotation.x, state.mouse.ny * 0.14, 0.028);
+
+    /* ── Dragon ──
+       Slow Y rotation + gentle bob + wing flap.          */
+    dragon.rotation.y  = t * 0.28;
+    dragon.position.y  = 0.5 + Math.sin(t * 0.65) * 0.16;
+    wL.rotation.z = -0.25 + Math.sin(t * 2.0) * 0.22;
+    wR.rotation.z =  0.25 - Math.sin(t * 2.0) * 0.22;
+    // Eye pulse
+    eyeMat.emissiveIntensity = 1.4 + Math.sin(t * 3.0) * 0.6;
+
+    /* ── Kitten ──
+       Counter-rotation, slight tilt for personality.     */
+    kitten.rotation.y   = -t * 0.2;
+    kitten.position.y   = -0.1 + Math.sin(t * 0.82 + 1.1) * 0.13;
+    kitten.rotation.z   = Math.sin(t * 0.55) * 0.04;
+
+    /* ── Dino ──
+       Slower, back-plane; scale-bobs for chibi feel.     */
+    dino.rotation.y     = t * 0.18;
+    dino.position.y     = -0.9 + Math.sin(t * 0.72 + 2.3) * 0.11;
+    const dinoScale     = 1 + Math.sin(t * 1.6) * 0.018;
+    dino.scale.set(dinoScale, dinoScale, dinoScale);
+
+    /* ── Keychain ──
+       Faster spin + pendulum-like swing on Z.            */
+    keychain.rotation.y = t * 0.65;
+    keychain.rotation.z = Math.sin(t * 1.1) * 0.18;
+    keychain.position.y = -1.1 + Math.sin(t * 1.3 + 1.7) * 0.17;
+
+    /* ── Particles ── */
+    particlesBg.rotation.y = t * 0.014;
+    particlesBg.rotation.x = t * 0.007;
+    particlesFg.rotation.y = -t * 0.018;
+
+    /* ── Light pulsing — subtle, not disco ── */
+    rimCyan.intensity = 2.2 + Math.sin(t * 1.05) * 0.45;
+    rimPink.intensity = 1.4 + Math.sin(t * 0.88 + 1.9) * 0.3;
+    rimGold.intensity = 0.9 + Math.sin(t * 1.55 + 0.6) * 0.3;
+
+    renderer.render(scene, camera);
   })();
 
-  window.addEventListener('resize',()=>{
-    camera.aspect=W()/H(); camera.updateProjectionMatrix();
-    renderer.setSize(W(),H());
+  /* ── Resize handler ── */
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  }, { passive: true });
+
+  /* ── Theme change — soften lights in light mode ── */
+  document.addEventListener('themechange', e => {
+    const light = e.detail === 'light';
+    ambient.intensity   = light ? 0.9 : 0.35;
+    fillLight.intensity = light ? 0.8 : 1.4;
+    rimCyan.intensity   = light ? 1.2 : 2.2;
+    rimPink.intensity   = light ? 0.7 : 1.4;
   });
 }
 

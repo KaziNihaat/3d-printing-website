@@ -44,36 +44,120 @@
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════
+     HERO — Premium 3D Interactive Experience
+     ▸ Three.js canvas fills full viewport
+     ▸ CSS layers: gradient bg → fog → grid → content
+     ▸ Floating product labels with connecting lines
+     ▸ Mouse parallax handled in main.js initHeroScene()
+════════════════════════════════════════════════════ -->
 <section id="hero">
-  <canvas id="heroCanvas"></canvas>
-  <div class="hero-grid"></div>
+
+  <!-- Layer 1: Three.js 3D canvas (managed by initHeroScene) -->
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+
+  <!-- Layer 2: Atmospheric depth fog -->
+  <div class="hero-fog" aria-hidden="true"></div>
+
+  <!-- Layer 3: Subtle dot-grid -->
+  <div class="hero-grid" aria-hidden="true"></div>
+
+  <!-- Layer 4: Ambient light orbs (pure CSS, zero JS cost) -->
+  <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-3" aria-hidden="true"></div>
+
+  <!-- Layer 5: Main text content -->
   <div class="hero-content">
+
+    <!-- Live badge -->
     <div class="hero-badge">
       <span class="badge-pulse"></span>
-      <span data-en="✦ Bangladesh's Premium 3D Print Studio" data-bn="✦ বাংলাদেশের প্রিমিয়াম ৩ডি প্রিন্ট স্টুডিও">✦ Bangladesh's Premium 3D Print Studio</span>
+      <span data-en="✦ Bangladesh's Premium 3D Print Studio"
+            data-bn="✦ বাংলাদেশের প্রিমিয়াম ৩ডি প্রিন্ট স্টুডিও">
+        ✦ Bangladesh's Premium 3D Print Studio
+      </span>
     </div>
+
+    <!-- Headline -->
     <h1 class="hero-title">
-      <span class="title-line" data-en="Custom 3D Creations" data-bn="কাস্টম ৩ডি সৃষ্টি">Custom 3D Creations</span>
-      <span class="title-line accent" data-en="Made Just For You" data-bn="শুধু আপনার জন্য তৈরি">Made Just For You</span>
+      <span class="title-line"
+            data-en="Custom 3D Creations"
+            data-bn="কাস্টম ৩ডি সৃষ্টি">Custom 3D Creations</span>
+      <span class="title-line accent"
+            data-en="Made Just For You"
+            data-bn="শুধু আপনার জন্য তৈরি">Made Just For You</span>
     </h1>
-    <p class="hero-sub" data-en="Cute toys, couple gifts, and personalized designs — crafted with love in Bangladesh and delivered to your door." data-bn="কিউট খেলনা, কাপল গিফট এবং ব্যক্তিগতকৃত ডিজাইন — বাংলাদেশে ভালোবাসা দিয়ে তৈরি।">Cute toys, couple gifts, and personalized designs — crafted with love in Bangladesh and delivered to your door.</p>
+
+    <!-- Subheadline -->
+    <p class="hero-sub"
+       data-en="Cute toys, couple gifts, and personalized designs — crafted with love in Bangladesh and delivered to your door."
+       data-bn="কিউট খেলনা, কাপল গিফট এবং ব্যক্তিগতকৃত ডিজাইন — বাংলাদেশে ভালোবাসা দিয়ে তৈরি।">
+      Cute toys, couple gifts, and personalized designs —
+      crafted with love in Bangladesh and delivered to your door.
+    </p>
+
+    <!-- CTAs -->
     <div class="hero-btns">
-      <a href="#shop" class="btn-primary">
-        <span data-en="Browse Shop" data-bn="শপ দেখুন">Browse Shop</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <!-- Primary: glowing gradient button -->
+      <a href="#shop" class="btn-primary hero-btn-primary">
+        <span data-en="Shop Now" data-bn="এখনই কিনুন">Shop Now</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
       </a>
-      <a href="#custom" class="btn-ghost">
-        <span data-en="Customize Your Design" data-bn="আপনার ডিজাইন কাস্টমাইজ করুন">Customize Your Design</span>
+      <!-- Secondary: glass border button -->
+      <a href="#custom" class="btn-ghost hero-btn-ghost">
+        <span data-en="Customize Design" data-bn="ডিজাইন কাস্টমাইজ করুন">Customize Design</span>
       </a>
     </div>
-    <div class="hero-labels">
-      <div class="obj-label" style="--lx:72%;--ly:28%"><span class="label-dot"></span><span data-en="Dragon" data-bn="ড্রাগন">Dragon</span></div>
-      <div class="obj-label" style="--lx:20%;--ly:55%"><span class="label-dot"></span><span data-en="Elephant" data-bn="হাতি">Elephant</span></div>
-      <div class="obj-label" style="--lx:78%;--ly:65%"><span class="label-dot"></span><span data-en="Action Figure" data-bn="অ্যাকশন ফিগার">Action Figure</span></div>
+
+    <!-- Trust stats row -->
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num">500+</span>
+        <span class="hero-stat-label" data-en="Happy Customers" data-bn="সন্তুষ্ট গ্রাহক">Happy Customers</span>
+      </div>
+      <div class="hero-stat-divider" aria-hidden="true"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">48h</span>
+        <span class="hero-stat-label" data-en="Avg. Turnaround" data-bn="গড় ডেলিভারি সময়">Avg. Turnaround</span>
+      </div>
+      <div class="hero-stat-divider" aria-hidden="true"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">20+</span>
+        <span class="hero-stat-label" data-en="Materials" data-bn="উপকরণ">Materials</span>
+      </div>
     </div>
   </div>
-  <div class="scroll-hint"><div class="scroll-line"></div><span data-en="Scroll" data-bn="স্ক্রোল করুন">Scroll</span></div>
+
+  <!-- Layer 6: Floating 3D object labels (positioned by CSS vars) -->
+  <div class="hero-labels" aria-hidden="true">
+    <div class="obj-label" style="--lx:74%;--ly:24%">
+      <span class="label-dot"></span>
+      <span data-en="Dragon" data-bn="ড্রাগন">Dragon</span>
+    </div>
+    <div class="obj-label" style="--lx:18%;--ly:52%">
+      <span class="label-dot" style="background:var(--cyan);box-shadow:0 0 8px var(--cyan)"></span>
+      <span data-en="Kitten" data-bn="বিড়াল">Kitten</span>
+    </div>
+    <div class="obj-label" style="--lx:80%;--ly:68%">
+      <span class="label-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></span>
+      <span data-en="Keychain" data-bn="কীচেইন">Keychain</span>
+    </div>
+    <div class="obj-label" style="--lx:28%;--ly:20%">
+      <span class="label-dot" style="background:var(--gold,#ffd700);box-shadow:0 0 8px var(--gold,#ffd700)"></span>
+      <span data-en="Dino" data-bn="ডাইনো">Dino</span>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-hint" aria-label="Scroll down">
+    <div class="scroll-line"></div>
+    <span data-en="Scroll" data-bn="স্ক্রোল করুন">Scroll</span>
+  </div>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════
