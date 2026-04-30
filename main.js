@@ -1193,6 +1193,107 @@ function initWaFab(){
 }
 
 /* ─── 16. INIT ─── */
+/* ─────────────────────────────────────────────────
+   CARD VIDEO TOGGLE
+   ▸ Reads data-video-src from each <article>
+   ▸ Injects <video> + toggle pill into viewer wrap
+   ▸ Autoplay on hover, pause on leave
+   ▸ Falls back gracefully if no video provided
+───────────────────────────────────────────────── */
+function initCardVideoToggle(){
+  $$('.prod-card[data-cat]').forEach(card => {
+    const videoSrc = card.dataset.videoSrc; // optional attribute
+    const wrap     = card.querySelector('.prod-viewer-wrap');
+    if(!wrap) return;
+
+    // Determine available modes
+    const hasBd3d  = !!card.querySelector('.prod-canvas');
+    const hasPhoto = !!card.querySelector('.prod-img-layer');
+    const hasVideo = !!videoSrc;
+
+    // Only inject if at least 2 modes exist
+    const modes = [];
+    if(hasBd3d)  modes.push({ key:'3d',    label:'3D' });
+    if(hasPhoto) modes.push({ key:'photo',  label:'Photo' });
+    if(hasVideo) modes.push({ key:'video',  label:'▶ Video' });
+    if(modes.length < 2) return;
+
+    // ── Inject video element (lazy — src set only when activated) ──
+    let videoEl = null;
+    if(hasVideo){
+      videoEl = document.createElement('video');
+      videoEl.className    = 'prod-card-video';
+      videoEl.muted        = true;
+      videoEl.loop         = true;
+      videoEl.playsInline  = true;
+      videoEl.preload      = 'none';  // lazy — don't load until needed
+      wrap.appendChild(videoEl);
+    }
+
+    // ── Inject toggle pill ──
+    const pill = document.createElement('div');
+    pill.className = 'card-media-toggle';
+    pill.innerHTML = modes.map(m =>
+      `<button class="cmt-btn${m.key==='3d'?' active':''}" data-mode="${m.key}">${m.label}</button>`
+    ).join('');
+    wrap.appendChild(pill);
+
+    // ── Track current mode ──
+    let currentMode = '3d';
+
+    function setMode(mode){
+      currentMode = mode;
+
+      // Update button states
+      pill.querySelectorAll('.cmt-btn').forEach(btn =>
+        btn.classList.toggle('active', btn.dataset.mode === mode)
+      );
+
+      // 3D mode
+      const canvas = card.querySelector('.prod-canvas');
+      if(canvas) canvas.style.opacity = mode === '3d' ? '' : '0.1';
+
+      // Photo mode
+      const img = card.querySelector('.prod-img-layer');
+      if(img) img.style.opacity = mode === 'photo' ? '1' : '0';
+
+      // Video mode
+      if(videoEl){
+        if(mode === 'video'){
+          // Set src lazily — only load when user actually wants video
+          if(!videoEl.src && videoSrc){
+            videoEl.src = videoSrc;
+            videoEl.load();
+          }
+          wrap.classList.add('show-video');
+          videoEl.play().catch(()=>{}); // catch autoplay block
+        } else {
+          wrap.classList.remove('show-video');
+          videoEl.pause();
+        }
+      }
+
+      // Spin hint visibility
+      const hint = card.querySelector('.prod-spin-hint');
+      if(hint) hint.style.opacity = mode === '3d' ? '' : '0';
+    }
+
+    // Pill click handler
+    pill.addEventListener('click', e => {
+      const btn = e.target.closest('.cmt-btn');
+      if(btn) setMode(btn.dataset.mode);
+    });
+
+    // Hover-autoplay: if video mode is active and user hovers, ensure playing
+    wrap.addEventListener('mouseenter', () => {
+      if(currentMode === 'video' && videoEl) videoEl.play().catch(()=>{});
+    });
+    wrap.addEventListener('mouseleave', () => {
+      if(currentMode === 'video' && videoEl) videoEl.pause();
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   initCursor();
   initNavbar();
@@ -1204,9 +1305,31 @@ document.addEventListener('DOMContentLoaded',()=>{
   initWaFab();
   initFilter();
 
+  /* ── Background video fade-in ──
+     The <video> starts with opacity:0.
+     Once enough data is loaded we fade it in smoothly.
+     This prevents a flash of black/white before the video starts. */
+  const heroBgVideo = document.getElementById('heroBgVideo');
+  if(heroBgVideo){
+    // 'canplaythrough' fires when enough is buffered to play without stopping
+    heroBgVideo.addEventListener('canplaythrough', () => {
+      heroBgVideo.classList.add('loaded');
+    }, { once: true });
+    // Fallback: if event never fires (e.g. no video file), just show nothing
+    // and the CSS background gradient shows through naturally.
+  }
+
+  /* ── Product card video toggle ──
+     Injects a video element + 3D/Video toggle pill into every
+     .prod-viewer-wrap that has a data-video-src attribute.
+     ► HOW TO ADD A VIDEO TO A PRODUCT CARD:
+       1. Add a data-video-src="video/my-product.mp4" attr to the <article>
+       2. Put the MP4 file in a /video/ folder in your project
+       3. Save — the toggle pill appears automatically              */
+  initCardVideoToggle();
+
   if(typeof THREE!=='undefined'){
     initHeroScene();
-    // Stagger heavy 3D inits to avoid janky load
     setTimeout(()=>initProductViewers(), 200);
     setTimeout(()=>initCtaOrb(), 400);
     setTimeout(()=>initGalleryScenes(), 600);

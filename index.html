@@ -45,41 +45,66 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════════════
-     HERO — Premium 3D Interactive Experience
-     ▸ Three.js canvas fills full viewport
-     ▸ CSS layers: gradient bg → fog → grid → content
-     ▸ Floating product labels with connecting lines
-     ▸ Mouse parallax handled in main.js initHeroScene()
+     HERO — Minimal product-focused experience
+     Changes from previous:
+     ▸ Background video (autoplay/muted/loop) with dark overlay
+     ▸ Smaller headline — not screen-dominating
+     ▸ Stats row removed — cleaner, faster to scroll past
+     ▸ Reduced min-height so product section peeks below
+     ▸ Fallback image for mobile (no video on small screens)
 ════════════════════════════════════════════════════ -->
 <section id="hero">
 
-  <!-- Layer 1: Three.js 3D canvas (managed by initHeroScene) -->
+  <!-- ── BACKGROUND VIDEO (desktop only) ──
+       Replace the src values with your own video file.
+       Recommended: an MP4 of your printer in action or a
+       slow rotating product shot. Keep under 8MB for perf.
+       Free source: pexels.com/search/videos/3d+printing/  -->
+  <div class="hero-video-wrap" aria-hidden="true">
+    <!-- Video — hidden on mobile via CSS, fallback image shown instead -->
+    <video
+      class="hero-video"
+      id="heroBgVideo"
+      autoplay muted loop playsinline
+      preload="none"
+      poster="images/hero-poster.jpg"
+    >
+      <!-- ▼ REPLACE THESE WITH YOUR OWN VIDEO FILES ▼ -->
+      <source src="video/hero-bg.webm" type="video/webm"/>
+      <source src="video/hero-bg.mp4"  type="video/mp4"/>
+      <!-- If no video file exists, the poster image shows instead -->
+    </video>
+
+    <!-- Fallback image for mobile (shown when video is hidden) -->
+    <div class="hero-video-fallback" aria-hidden="true"></div>
+
+    <!-- Dark gradient overlay — keeps text readable over any video -->
+    <div class="hero-video-overlay" aria-hidden="true"></div>
+  </div>
+
+  <!-- Three.js 3D objects float ON TOP of the video -->
   <canvas id="heroCanvas" aria-hidden="true"></canvas>
 
-  <!-- Layer 2: Atmospheric depth fog -->
-  <div class="hero-fog" aria-hidden="true"></div>
-
-  <!-- Layer 3: Subtle dot-grid -->
+  <!-- Subtle dot-grid — adds texture depth -->
   <div class="hero-grid" aria-hidden="true"></div>
 
-  <!-- Layer 4: Ambient light orbs (pure CSS, zero JS cost) -->
+  <!-- CSS glow orbs — cheap atmospheric lighting effect -->
   <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
   <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
-  <div class="hero-orb hero-orb-3" aria-hidden="true"></div>
 
-  <!-- Layer 5: Main text content -->
+  <!-- ── MAIN CONTENT — minimal and tight ── -->
   <div class="hero-content">
 
-    <!-- Live badge -->
+    <!-- Small live badge -->
     <div class="hero-badge">
       <span class="badge-pulse"></span>
-      <span data-en="✦ Bangladesh's Premium 3D Print Studio"
-            data-bn="✦ বাংলাদেশের প্রিমিয়াম ৩ডি প্রিন্ট স্টুডিও">
-        ✦ Bangladesh's Premium 3D Print Studio
+      <span data-en="Bangladesh's Premium 3D Print Studio"
+            data-bn="বাংলাদেশের প্রিমিয়াম ৩ডি প্রিন্ট স্টুডিও">
+        Bangladesh's Premium 3D Print Studio
       </span>
     </div>
 
-    <!-- Headline -->
+    <!-- Headline — smaller than before, cleaner weight -->
     <h1 class="hero-title">
       <span class="title-line"
             data-en="Custom 3D Creations"
@@ -89,73 +114,48 @@
             data-bn="শুধু আপনার জন্য তৈরি">Made Just For You</span>
     </h1>
 
-    <!-- Subheadline -->
+    <!-- Short sub — one line only -->
     <p class="hero-sub"
-       data-en="Cute toys, couple gifts, and personalized designs — crafted with love in Bangladesh and delivered to your door."
-       data-bn="কিউট খেলনা, কাপল গিফট এবং ব্যক্তিগতকৃত ডিজাইন — বাংলাদেশে ভালোবাসা দিয়ে তৈরি।">
-      Cute toys, couple gifts, and personalized designs —
-      crafted with love in Bangladesh and delivered to your door.
+       data-en="Cute toys, couple gifts &amp; personalised designs — made in Bangladesh."
+       data-bn="কিউট খেলনা, কাপল গিফট ও ব্যক্তিগতকৃত ডিজাইন — বাংলাদেশে তৈরি।">
+      Cute toys, couple gifts &amp; personalised designs — made in Bangladesh.
     </p>
 
-    <!-- CTAs -->
+    <!-- CTAs — same as before -->
     <div class="hero-btns">
-      <!-- Primary: glowing gradient button -->
       <a href="#shop" class="btn-primary hero-btn-primary">
         <span data-en="Shop Now" data-bn="এখনই কিনুন">Shop Now</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
       </a>
-      <!-- Secondary: glass border button -->
       <a href="#custom" class="btn-ghost hero-btn-ghost">
         <span data-en="Customize Design" data-bn="ডিজাইন কাস্টমাইজ করুন">Customize Design</span>
       </a>
     </div>
-
-    <!-- Trust stats row -->
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <span class="hero-stat-num">500+</span>
-        <span class="hero-stat-label" data-en="Happy Customers" data-bn="সন্তুষ্ট গ্রাহক">Happy Customers</span>
-      </div>
-      <div class="hero-stat-divider" aria-hidden="true"></div>
-      <div class="hero-stat">
-        <span class="hero-stat-num">48h</span>
-        <span class="hero-stat-label" data-en="Avg. Turnaround" data-bn="গড় ডেলিভারি সময়">Avg. Turnaround</span>
-      </div>
-      <div class="hero-stat-divider" aria-hidden="true"></div>
-      <div class="hero-stat">
-        <span class="hero-stat-num">20+</span>
-        <span class="hero-stat-label" data-en="Materials" data-bn="উপকরণ">Materials</span>
-      </div>
-    </div>
   </div>
 
-  <!-- Layer 6: Floating 3D object labels (positioned by CSS vars) -->
+  <!-- Floating 3D object labels -->
   <div class="hero-labels" aria-hidden="true">
-    <div class="obj-label" style="--lx:74%;--ly:24%">
+    <div class="obj-label" style="--lx:74%;--ly:28%">
       <span class="label-dot"></span>
       <span data-en="Dragon" data-bn="ড্রাগন">Dragon</span>
     </div>
-    <div class="obj-label" style="--lx:18%;--ly:52%">
+    <div class="obj-label" style="--lx:18%;--ly:55%">
       <span class="label-dot" style="background:var(--cyan);box-shadow:0 0 8px var(--cyan)"></span>
       <span data-en="Kitten" data-bn="বিড়াল">Kitten</span>
     </div>
-    <div class="obj-label" style="--lx:80%;--ly:68%">
+    <div class="obj-label" style="--lx:80%;--ly:70%">
       <span class="label-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></span>
       <span data-en="Keychain" data-bn="কীচেইন">Keychain</span>
     </div>
-    <div class="obj-label" style="--lx:28%;--ly:20%">
-      <span class="label-dot" style="background:var(--gold,#ffd700);box-shadow:0 0 8px var(--gold,#ffd700)"></span>
-      <span data-en="Dino" data-bn="ডাইনো">Dino</span>
-    </div>
   </div>
 
-  <!-- Scroll indicator -->
-  <div class="scroll-hint" aria-label="Scroll down">
+  <!-- Scroll cue — with peeking product section hint -->
+  <div class="scroll-hint" aria-label="Scroll to products">
     <div class="scroll-line"></div>
-    <span data-en="Scroll" data-bn="স্ক্রোল করুন">Scroll</span>
+    <span data-en="See Products" data-bn="পণ্য দেখুন">See Products</span>
   </div>
 
 </section>
@@ -200,7 +200,7 @@
           <h3 data-en="Night Fury Dragon" data-bn="নাইট ফিউরি ড্রাগন">Night Fury Dragon</h3>
           <p data-en="Sleek, poseable — inspired by legendary night dragons. ~14cm wingspan." data-bn="মসৃণ, কিংবদন্তি রাত্রি ড্রাগন থেকে অনুপ্রাণিত। ~১৪ সেমি পাখার বিস্তার।">Sleek, poseable — inspired by legendary night dragons. ~14cm wingspan.</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 650</span><span class="p-note">~$6 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 650</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Night Fury Dragon')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
@@ -222,7 +222,7 @@
           <h3 data-en="Cute Kitten Figurine" data-bn="কিউট কিটেন ফিগারিন">Cute Kitten Figurine</h3>
           <p data-en="Adorable sitting kitten with big round eyes. 10 pastel colour options." data-bn="বড় গোল চোখের সুন্দর বসা বিড়াল। ১০টি প্যাস্টেল রঙে পাওয়া যায়।">Adorable sitting kitten with big round eyes. 10 pastel colour options.</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 380</span><span class="p-note">~$3.5 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 380</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Cute Kitten')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
@@ -243,7 +243,7 @@
           <h3 data-en="Velociraptor" data-bn="ভেলোসির‍্যাপ্টর">Velociraptor</h3>
           <p data-en="High-detail running raptor with articulated jaw. Perfect for collectors." data-bn="উচ্চ-বিস্তারিত দৌড়ানো র‍্যাপ্টর। সংগ্রাহকদের জন্য আদর্শ।">High-detail running raptor with articulated jaw. Perfect for collectors.</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 520</span><span class="p-note">~$4.7 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 520</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Velociraptor')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
@@ -264,7 +264,7 @@
           <h3 data-en="Baby Deer (Fawn)" data-bn="বেবি ডিয়ার">Baby Deer (Fawn)</h3>
           <p data-en="Gentle newborn deer with tiny spotted details. A favourite gift for nature lovers." data-bn="ছোট্ট ছিট্টে বিবরণ সহ মৃদু নবজাতক হরিণ। প্রকৃতিপ্রেমীদের প্রিয় উপহার।">Gentle newborn deer with tiny spotted details. A favourite gift for nature lovers.</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 420</span><span class="p-note">~$3.8 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 420</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Baby Deer')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
@@ -286,7 +286,7 @@
           <h3 data-en="Fire Drake Dragon" data-bn="ফায়ার ড্রেক ড্রাগন">Fire Drake Dragon</h3>
           <p data-en="Rearing up with open wings and fierce claws. Stunning display piece ~18cm." data-bn="খোলা ডানা এবং ভয়ানক নখর সহ অসাধারণ ডিসপ্লে পিস।">Rearing up with open wings and fierce claws. Stunning display piece ~18cm.</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 850</span><span class="p-note">~$7.7 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 850</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Fire Drake Dragon')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
@@ -307,7 +307,7 @@
           <h3 data-en="Cute Mini Dino" data-bn="কিউট মিনি ডাইনো">Cute Mini Dino</h3>
           <p data-en="Chubby chibi-style dino — oversized head, tiny arms. Kids absolutely love it!" data-bn="বড় মাথা এবং ছোট বাহু সহ চিবি-স্টাইল ডাইনো। বাচ্চারা ভালোবাসে!">Chubby chibi-style dino — oversized head, tiny arms. Kids absolutely love it!</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 350</span><span class="p-note">~$3.2 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 350</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Cute Mini Dino')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
@@ -328,7 +328,7 @@
           <h3 data-en="Baby Elephant" data-bn="বেবি এলিফ্যান্ট">Baby Elephant</h3>
           <p data-en="Pudgy elephant with floppy ears and curled trunk. Grey or sky blue." data-bn="ঝুলন্ত কান এবং কুঁচকানো শুঁড় সহ মোটাসোটা বেবি হাতি। ধূসর বা আকাশী নীল।">Pudgy elephant with floppy ears and curled trunk. Grey or sky blue.</p>
           <div class="prod-footer-row">
-            <div class="prod-price"><span class="p-main">৳ 400</span><span class="p-note">~$3.6 USD</span></div>
+            <div class="prod-price"><span class="p-main">৳ 400</span></div>
             <button class="btn-order-sm" onclick="orderProduct('Baby Elephant')" data-en="Order Now" data-bn="অর্ডার করুন">Order Now</button>
           </div>
         </div>
