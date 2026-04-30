@@ -1194,6 +1194,83 @@ function initWaFab(){
 
 /* ─── 16. INIT ─── */
 /* ─────────────────────────────────────────────────
+   HERO PRODUCT MINI-SCENES
+   Tiny Three.js scene per hero-right card.
+   Slow spin always on; faster on hover.
+───────────────────────────────────────────────── */
+function initHeroProducts(){
+  if(typeof THREE === 'undefined') return;
+
+  const HPC_CONFIG = {
+    nightfury: { build: buildDragonNight, color: 0x7c5cff },
+    kitten:    { build: buildKitten,      color: 0xff4da6 },
+    raptor:    { build: buildRaptor,      color: 0x1bea8a },
+    firedrake: { build: buildFireDrake,   color: 0xff8c42 },
+  };
+
+  $$('.hero-prod-card').forEach(card => {
+    const pid    = card.dataset.pid;
+    const cfg    = HPC_CONFIG[pid];
+    const canvas = card.querySelector('.hpc-canvas');
+    if(!cfg || !canvas) return;
+
+    const W = canvas.offsetWidth  || 220;
+    const H = canvas.offsetHeight || 150;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0, 0);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(46, W/H, 0.1, 40);
+    camera.position.z = 3.2;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dl = new THREE.DirectionalLight(0xffffff, 1.1);
+    dl.position.set(2, 3, 2); scene.add(dl);
+    const pl = new THREE.PointLight(new THREE.Color(cfg.color), 2.0, 8);
+    pl.position.set(-1.5, 1, 1); scene.add(pl);
+
+    const group = new THREE.Group();
+    scene.add(group);
+    cfg.build(group);
+
+    let isHovered = false, targetScale = 1, currentScale = 1, rotY = 0;
+    const clock = new THREE.Clock();
+
+    /* Hover speed-up + scale */
+    card.addEventListener('mouseenter', () => { isHovered = true;  targetScale = 1.06; });
+    card.addEventListener('mouseleave', () => { isHovered = false; targetScale = 1.0;  });
+
+    /* Pause when off-screen */
+    let active = false;
+    new IntersectionObserver(e => { active = e[0].isIntersecting; }, { threshold: 0.1 }).observe(card);
+
+    (function loop(){
+      requestAnimationFrame(loop);
+      if(!active) return;
+      const t = clock.getElapsedTime();
+      rotY += isHovered ? 0.018 : 0.006;
+      group.rotation.y  = rotY;
+      group.position.y  = Math.sin(t * 0.7) * 0.08;
+      currentScale      = lerp(currentScale, targetScale, 0.08);
+      group.scale.setScalar(currentScale);
+      pl.intensity      = 2.0 + Math.sin(t * 1.1) * 0.4;
+      renderer.render(scene, camera);
+    })();
+
+    window.addEventListener('resize', () => {
+      const nW = canvas.offsetWidth || 220;
+      const nH = canvas.offsetHeight || 150;
+      camera.aspect = nW / nH;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nW, nH);
+    }, { passive: true });
+  });
+}
+
+/* ─────────────────────────────────────────────────
    CARD VIDEO TOGGLE
    ▸ Reads data-video-src from each <article>
    ▸ Injects <video> + toggle pill into viewer wrap
@@ -1330,8 +1407,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   if(typeof THREE!=='undefined'){
     initHeroScene();
-    setTimeout(()=>initProductViewers(), 200);
-    setTimeout(()=>initCtaOrb(), 400);
-    setTimeout(()=>initGalleryScenes(), 600);
+    setTimeout(()=>initHeroProducts(),  100);
+    setTimeout(()=>initProductViewers(), 300);
+    setTimeout(()=>initCtaOrb(), 500);
+    setTimeout(()=>initGalleryScenes(), 700);
   }
 });

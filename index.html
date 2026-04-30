@@ -45,118 +45,161 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════════════
-     HERO — Minimal product-focused experience
-     Changes from previous:
-     ▸ Background video (autoplay/muted/loop) with dark overlay
-     ▸ Smaller headline — not screen-dominating
-     ▸ Stats row removed — cleaner, faster to scroll past
-     ▸ Reduced min-height so product section peeks below
-     ▸ Fallback image for mobile (no video on small screens)
+     HERO — Split layout (v4)
+     LEFT  35%: minimal text + single CTA
+     RIGHT 65%: live featured product mini-cards
+     ▸ Products visible immediately on load
+     ▸ No stats, no long paragraphs
+     ▸ Background video + orbs kept from v3
 ════════════════════════════════════════════════════ -->
 <section id="hero">
 
-  <!-- ── BACKGROUND VIDEO (desktop only) ──
-       Replace the src values with your own video file.
-       Recommended: an MP4 of your printer in action or a
-       slow rotating product shot. Keep under 8MB for perf.
-       Free source: pexels.com/search/videos/3d+printing/  -->
+  <!-- Background video layer (same as before) -->
   <div class="hero-video-wrap" aria-hidden="true">
-    <!-- Video — hidden on mobile via CSS, fallback image shown instead -->
-    <video
-      class="hero-video"
-      id="heroBgVideo"
-      autoplay muted loop playsinline
-      preload="none"
-      poster="images/hero-poster.jpg"
-    >
-      <!-- ▼ REPLACE THESE WITH YOUR OWN VIDEO FILES ▼ -->
+    <video class="hero-video" id="heroBgVideo"
+      autoplay muted loop playsinline preload="none"
+      poster="images/hero-poster.jpg">
       <source src="video/hero-bg.webm" type="video/webm"/>
       <source src="video/hero-bg.mp4"  type="video/mp4"/>
-      <!-- If no video file exists, the poster image shows instead -->
     </video>
-
-    <!-- Fallback image for mobile (shown when video is hidden) -->
     <div class="hero-video-fallback" aria-hidden="true"></div>
-
-    <!-- Dark gradient overlay — keeps text readable over any video -->
-    <div class="hero-video-overlay" aria-hidden="true"></div>
+    <div class="hero-video-overlay"  aria-hidden="true"></div>
   </div>
 
-  <!-- Three.js 3D objects float ON TOP of the video -->
+  <!-- Three.js canvas — hidden on mobile for perf -->
   <canvas id="heroCanvas" aria-hidden="true"></canvas>
 
-  <!-- Subtle dot-grid — adds texture depth -->
+  <!-- Dot grid texture -->
   <div class="hero-grid" aria-hidden="true"></div>
 
-  <!-- CSS glow orbs — cheap atmospheric lighting effect -->
+  <!-- CSS glow orbs -->
   <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
   <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
 
-  <!-- ── MAIN CONTENT — minimal and tight ── -->
-  <div class="hero-content">
+  <!-- ══════════════════════════════════
+       SPLIT LAYOUT WRAPPER
+  ══════════════════════════════════ -->
+  <div class="hero-split">
 
-    <!-- Small live badge -->
-    <div class="hero-badge">
-      <span class="badge-pulse"></span>
-      <span data-en="Bangladesh's Premium 3D Print Studio"
-            data-bn="বাংলাদেশের প্রিমিয়াম ৩ডি প্রিন্ট স্টুডিও">
-        Bangladesh's Premium 3D Print Studio
-      </span>
-    </div>
+    <!-- ── LEFT: text + CTA (35%) ── -->
+    <div class="hero-left">
 
-    <!-- Headline — smaller than before, cleaner weight -->
-    <h1 class="hero-title">
-      <span class="title-line"
-            data-en="Custom 3D Creations"
-            data-bn="কাস্টম ৩ডি সৃষ্টি">Custom 3D Creations</span>
-      <span class="title-line accent"
-            data-en="Made Just For You"
-            data-bn="শুধু আপনার জন্য তৈরি">Made Just For You</span>
-    </h1>
+      <!-- Live badge -->
+      <div class="hero-badge">
+        <span class="badge-pulse"></span>
+        <span data-en="Bangladesh's Premium 3D Studio"
+              data-bn="বাংলাদেশের প্রিমিয়াম ৩ডি স্টুডিও">
+          Bangladesh's Premium 3D Studio
+        </span>
+      </div>
 
-    <!-- Short sub — one line only -->
-    <p class="hero-sub"
-       data-en="Cute toys, couple gifts &amp; personalised designs — made in Bangladesh."
-       data-bn="কিউট খেলনা, কাপল গিফট ও ব্যক্তিগতকৃত ডিজাইন — বাংলাদেশে তৈরি।">
-      Cute toys, couple gifts &amp; personalised designs — made in Bangladesh.
-    </p>
+      <!-- Smaller headline — left-aligned -->
+      <h1 class="hero-title">
+        <span class="title-line"
+              data-en="Custom 3D Creations"
+              data-bn="কাস্টম ৩ডি সৃষ্টি">Custom 3D Creations</span>
+        <span class="title-line accent"
+              data-en="Made Just For You"
+              data-bn="শুধু আপনার জন্য তৈরি">Made Just For You</span>
+      </h1>
 
-    <!-- CTAs — same as before -->
-    <div class="hero-btns">
-      <a href="#shop" class="btn-primary hero-btn-primary">
-        <span data-en="Shop Now" data-bn="এখনই কিনুন">Shop Now</span>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+      <!-- One-line sub -->
+      <p class="hero-sub"
+         data-en="Toys, gifts &amp; personalised prints — made in Bangladesh."
+         data-bn="খেলনা, গিফট ও কাস্টম প্রিন্ট — বাংলাদেশে তৈরি।">
+        Toys, gifts &amp; personalised prints — made in Bangladesh.
+      </p>
+
+      <!-- Single clean CTA -->
+      <a href="#custom" class="hero-cta-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
+          <path d="M12 5l7 7-7 7M5 12h14"/>
         </svg>
+        <span data-en="Customize Your Design" data-bn="ডিজাইন কাস্টমাইজ করুন">Customize Your Design</span>
       </a>
-      <a href="#custom" class="btn-ghost hero-btn-ghost">
-        <span data-en="Customize Design" data-bn="ডিজাইন কাস্টমাইজ করুন">Customize Design</span>
+
+      <!-- Soft scroll cue -->
+      <div class="hero-scroll-cue">
+        <div class="scroll-line"></div>
+        <span data-en="See all products" data-bn="সব পণ্য দেখুন">See all products</span>
+      </div>
+
+    </div><!-- /hero-left -->
+
+    <!-- ── RIGHT: featured product mini-cards (65%) ── -->
+    <div class="hero-right" aria-label="Featured products preview">
+
+      <!-- 4 featured product cards — built by JS (initHeroProducts) -->
+      <!-- They show a still image on load, 3D viewer on hover       -->
+      <div class="hero-prod-grid" id="heroProdGrid">
+
+        <!-- Card 1 — Night Fury Dragon -->
+        <div class="hero-prod-card" data-pid="nightfury"
+             style="--card-hue:260; --card-color:#7c5cff">
+          <div class="hpc-visual">
+            <canvas class="hpc-canvas" id="hpc-nightfury"></canvas>
+            <div class="hpc-glow"></div>
+          </div>
+          <div class="hpc-info">
+            <span class="hpc-name" data-en="Night Fury" data-bn="নাইট ফিউরি">Night Fury</span>
+            <span class="hpc-price">৳ 650</span>
+          </div>
+          <a href="#shop" class="hpc-link" tabindex="-1" aria-hidden="true"></a>
+        </div>
+
+        <!-- Card 2 — Cute Kitten -->
+        <div class="hero-prod-card" data-pid="kitten"
+             style="--card-hue:330; --card-color:#ff4da6">
+          <div class="hpc-visual">
+            <canvas class="hpc-canvas" id="hpc-kitten"></canvas>
+            <div class="hpc-glow"></div>
+          </div>
+          <div class="hpc-info">
+            <span class="hpc-name" data-en="Cute Kitten" data-bn="কিউট কিটেন">Cute Kitten</span>
+            <span class="hpc-price">৳ 380</span>
+          </div>
+          <a href="#shop" class="hpc-link" tabindex="-1" aria-hidden="true"></a>
+        </div>
+
+        <!-- Card 3 — Velociraptor -->
+        <div class="hero-prod-card" data-pid="raptor"
+             style="--card-hue:120; --card-color:#1bea8a">
+          <div class="hpc-visual">
+            <canvas class="hpc-canvas" id="hpc-raptor"></canvas>
+            <div class="hpc-glow"></div>
+          </div>
+          <div class="hpc-info">
+            <span class="hpc-name" data-en="Velociraptor" data-bn="র‍্যাপ্টর">Velociraptor</span>
+            <span class="hpc-price">৳ 520</span>
+          </div>
+          <a href="#shop" class="hpc-link" tabindex="-1" aria-hidden="true"></a>
+        </div>
+
+        <!-- Card 4 — Fire Drake -->
+        <div class="hero-prod-card" data-pid="firedrake"
+             style="--card-hue:15; --card-color:#ff8c42">
+          <div class="hpc-visual">
+            <canvas class="hpc-canvas" id="hpc-firedrake"></canvas>
+            <div class="hpc-glow"></div>
+          </div>
+          <div class="hpc-info">
+            <span class="hpc-name" data-en="Fire Drake" data-bn="ফায়ার ড্রেক">Fire Drake</span>
+            <span class="hpc-price">৳ 850</span>
+          </div>
+          <a href="#shop" class="hpc-link" tabindex="-1" aria-hidden="true"></a>
+        </div>
+
+      </div><!-- /hero-prod-grid -->
+
+      <!-- "View all" link under the grid -->
+      <a href="#shop" class="hero-view-all">
+        <span data-en="View all products →" data-bn="সব পণ্য দেখুন →">View all products →</span>
       </a>
-    </div>
-  </div>
 
-  <!-- Floating 3D object labels -->
-  <div class="hero-labels" aria-hidden="true">
-    <div class="obj-label" style="--lx:74%;--ly:28%">
-      <span class="label-dot"></span>
-      <span data-en="Dragon" data-bn="ড্রাগন">Dragon</span>
-    </div>
-    <div class="obj-label" style="--lx:18%;--ly:55%">
-      <span class="label-dot" style="background:var(--cyan);box-shadow:0 0 8px var(--cyan)"></span>
-      <span data-en="Kitten" data-bn="বিড়াল">Kitten</span>
-    </div>
-    <div class="obj-label" style="--lx:80%;--ly:70%">
-      <span class="label-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></span>
-      <span data-en="Keychain" data-bn="কীচেইন">Keychain</span>
-    </div>
-  </div>
+    </div><!-- /hero-right -->
 
-  <!-- Scroll cue — with peeking product section hint -->
-  <div class="scroll-hint" aria-label="Scroll to products">
-    <div class="scroll-line"></div>
-    <span data-en="See Products" data-bn="পণ্য দেখুন">See Products</span>
-  </div>
+  </div><!-- /hero-split -->
 
 </section>
 
