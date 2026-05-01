@@ -442,12 +442,13 @@ function initHeroScene(){
      ANIMATION LOOP
   ════════════════════════════════════════ */
   const clock = new THREE.Clock();
-  let paused = false;
 
-  // Pause when tab is hidden (battery + GPU saving)
-  document.addEventListener('visibilitychange', () => {
-    paused = document.hidden;
-    if(!paused) clock.getDelta(); // discard accumulated time
+  /* ── Tab visibility — pause renderer when hidden ── */
+  let paused = false;
+  document.addEventListener('scenePause',  () => { paused = true;  });
+  document.addEventListener('sceneResume', () => {
+    paused = false;
+    clock.getDelta(); // discard accumulated time so no jump
   });
 
   (function loop(){
@@ -1194,12 +1195,91 @@ function initWaFab(){
 
 /* ─── 16. INIT ─── */
 /* ─────────────────────────────────────────────────
-   HERO PRODUCT MINI-SCENES
-   Tiny Three.js scene per hero-right card.
-   Slow spin always on; faster on hover.
+   HERO PARALLAX + 3D TILT
+   ▸ Mouse moves hero-left text very slightly
+   ▸ Hero product grid shifts in opposite direction
+   ▸ Individual cards get a CSS 3D tilt based on
+     mouse position within the card (pointer:fine only)
+   ▸ Disabled on touch/mobile — zero cost there
+───────────────────────────────────────────────── */
+function initHeroParallax(){
+  /* Only run on devices with a real pointer (desktop) */
+  if(!window.matchMedia('(pointer:fine)').matches) return;
+
+  const heroEl   = document.getElementById('hero');
+  const leftEl   = document.querySelector('.hero-left');
+  const rightEl  = document.querySelector('.hero-right');
+  const orb1     = document.querySelector('.hero-orb-1');
+  const orb2     = document.querySelector('.hero-orb-2');
+  if(!heroEl || !leftEl || !rightEl) return;
+
+  /* Smoothed mouse normalised to -1 → +1 within hero */
+  let mx = 0, my = 0;           /* raw targets */
+  let smx = 0, smy = 0;         /* smoothed values */
+  let rafId = null;
+
+  heroEl.addEventListener('mousemove', e => {
+    const r  = heroEl.getBoundingClientRect();
+    mx = ((e.clientX - r.left) / r.width)  * 2 - 1;  /* -1 left  → +1 right */
+    my = ((e.clientY - r.top)  / r.height) * 2 - 1;  /* -1 top   → +1 bottom */
+  }, { passive: true });
+
+  /* Reset smoothly when mouse leaves hero */
+  heroEl.addEventListener('mouseleave', () => { mx = 0; my = 0; }, { passive: true });
+
+  /* Animation loop — lerps smoothed values toward targets */
+  (function parallaxLoop(){
+    rafId = requestAnimationFrame(parallaxLoop);
+
+    /* Very gentle smoothing factor — feels silky */
+    smx = lerp(smx, mx, 0.055);
+    smy = lerp(smy, my, 0.055);
+
+    /* Left panel: drifts very slightly with mouse
+       Max: ±5px X, ±3px Y — barely perceptible    */
+    leftEl.style.transform =
+      `translate(${smx * 5}px, ${smy * 3}px)`;
+
+    /* Right panel: moves opposite direction + more
+       Max: ±-8px X, ±-5px Y — cards feel closer   */
+    rightEl.style.transform =
+      `translate(${smx * -8}px, ${smy * -5}px)`;
+
+    /* Orbs: slow drift amplified slightly */
+    if(orb1) orb1.style.transform =
+      `translate(${smx * 18}px, ${smy * 12}px) scale(1)`;
+    if(orb2) orb2.style.transform =
+      `translate(${smx * -12}px, ${smy * -8}px) scale(1)`;
+  })();
+
+  /* Stop when tab hidden */
+  document.addEventListener('scenePause',  () => { cancelAnimationFrame(rafId); });
+  document.addEventListener('sceneResume', () => {
+    (function parallaxLoop(){
+      rafId = requestAnimationFrame(parallaxLoop);
+      smx = lerp(smx, mx, 0.055);
+      smy = lerp(smy, my, 0.055);
+      leftEl.style.transform  = `translate(${smx * 5}px, ${smy * 3}px)`;
+      rightEl.style.transform = `translate(${smx * -8}px, ${smy * -5}px)`;
+      if(orb1) orb1.style.transform = `translate(${smx * 18}px, ${smy * 12}px) scale(1)`;
+      if(orb2) orb2.style.transform = `translate(${smx * -12}px, ${smy * -8}px) scale(1)`;
+    })();
+  });
+}
+
+/* ─────────────────────────────────────────────────
+   HERO PRODUCT MINI-SCENES (upgraded)
+   ▸ Same Three.js scenes as before
+   ▸ Added: 3D tilt based on mouse position in card
+   ▸ Added: point-light follows mouse X within card
+   ▸ Added: smooth tilt-reset on mouseleave
+   ▸ Added: pause on global scenePause event
 ───────────────────────────────────────────────── */
 function initHeroProducts(){
   if(typeof THREE === 'undefined') return;
+
+  /* Only do tilt on pointer devices */
+  const canTilt = window.matchMedia('(pointer:fine)').matches;
 
   const HPC_CONFIG = {
     nightfury: { build: buildDragonNight, color: 0x7c5cff },
@@ -1215,9 +1295,14 @@ function initHeroProducts(){
     if(!cfg || !canvas) return;
 
     const W = canvas.offsetWidth  || 220;
-    const H = canvas.offsetHeight || 150;
+    const H = canvas.offsetHeight || 172;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'high-performance' });
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance',
+    });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
     renderer.setSize(W, H);
     renderer.setClearColor(0, 0);
@@ -1229,6 +1314,8 @@ function initHeroProducts(){
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     const dl = new THREE.DirectionalLight(0xffffff, 1.1);
     dl.position.set(2, 3, 2); scene.add(dl);
+
+    /* Point light — will track mouse X for dynamic rim lighting */
     const pl = new THREE.PointLight(new THREE.Color(cfg.color), 2.0, 8);
     pl.position.set(-1.5, 1, 1); scene.add(pl);
 
@@ -1236,33 +1323,96 @@ function initHeroProducts(){
     scene.add(group);
     cfg.build(group);
 
-    let isHovered = false, targetScale = 1, currentScale = 1, rotY = 0;
+    /* State */
+    let isHovered    = false;
+    let targetScale  = 1,  currentScale  = 1;
+    let targetRotX   = 0,  currentRotX   = 0;  /* tilt X */
+    let targetRotY   = 0,  currentRotY   = 0;  /* base Y spin */
+    let targetLightX = -1.5;                    /* light tracks mouse */
+    let autoRotY     = 0;                       /* accumulated auto spin */
+    let paused       = false;
     const clock = new THREE.Clock();
 
-    /* Hover speed-up + scale */
-    card.addEventListener('mouseenter', () => { isHovered = true;  targetScale = 1.06; });
-    card.addEventListener('mouseleave', () => { isHovered = false; targetScale = 1.0;  });
+    /* ── Mouse enter / leave ── */
+    card.addEventListener('mouseenter', () => {
+      isHovered   = true;
+      targetScale = 1.08;
+    });
+    card.addEventListener('mouseleave', () => {
+      isHovered    = false;
+      targetScale  = 1.0;
+      targetRotX   = 0;    /* tilt resets to neutral */
+      targetLightX = -1.5; /* light resets to default */
+    });
 
-    /* Pause when off-screen */
+    /* ── 3D tilt on mouse move within card ──
+       Calculates mouse position relative to card centre,
+       maps to a gentle rotateX/Y for depth illusion.    */
+    if(canTilt){
+      canvas.addEventListener('mousemove', e => {
+        const r  = canvas.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width)  * 2 - 1; /* -1..+1 */
+        const ny = ((e.clientY - r.top)  / r.height) * 2 - 1;
+
+        /* Max tilt: ±8° — subtle but clear */
+        targetRotX   = -ny * 0.14;   /* radians ≈ ±8° */
+        targetLightX = nx * 2.5;     /* light follows mouse */
+      }, { passive: true });
+    }
+
+    /* ── Intersection + global pause ── */
     let active = false;
-    new IntersectionObserver(e => { active = e[0].isIntersecting; }, { threshold: 0.1 }).observe(card);
+    new IntersectionObserver(
+      e => { active = e[0].isIntersecting; },
+      { threshold: 0.1 }
+    ).observe(card);
 
+    document.addEventListener('scenePause',  () => { paused = true; });
+    document.addEventListener('sceneResume', () => {
+      paused = false;
+      clock.getDelta(); /* discard jump */
+    });
+
+    /* ── Render loop ── */
     (function loop(){
       requestAnimationFrame(loop);
-      if(!active) return;
+      if(!active || paused) return;
+
       const t = clock.getElapsedTime();
-      rotY += isHovered ? 0.018 : 0.006;
-      group.rotation.y  = rotY;
-      group.position.y  = Math.sin(t * 0.7) * 0.08;
-      currentScale      = lerp(currentScale, targetScale, 0.08);
+
+      /* Auto spin — faster on hover */
+      autoRotY += isHovered ? 0.022 : 0.006;
+
+      /* Smooth tilt lerp */
+      currentRotX = lerp(currentRotX, targetRotX, 0.09);
+
+      /* Apply combined rotation:
+         autoRotY = horizontal spin
+         currentRotX = vertical tilt from mouse   */
+      group.rotation.y = autoRotY;
+      group.rotation.x = currentRotX;
+
+      /* Vertical float — paused during tilt? No, continues for life */
+      group.position.y = Math.sin(t * 0.7) * 0.08;
+
+      /* Scale lerp */
+      currentScale = lerp(currentScale, targetScale, 0.09);
       group.scale.setScalar(currentScale);
-      pl.intensity      = 2.0 + Math.sin(t * 1.1) * 0.4;
+
+      /* Light tracks mouse smoothly */
+      pl.position.x = lerp(pl.position.x, targetLightX, 0.08);
+      pl.intensity  = 2.0 + Math.sin(t * 1.1) * 0.4;
+
+      /* On hover: boost light intensity slightly */
+      if(isHovered) pl.intensity = lerp(pl.intensity, 3.2, 0.05);
+
       renderer.render(scene, camera);
     })();
 
+    /* ── Resize ── */
     window.addEventListener('resize', () => {
-      const nW = canvas.offsetWidth || 220;
-      const nH = canvas.offsetHeight || 150;
+      const nW = canvas.offsetWidth  || 220;
+      const nH = canvas.offsetHeight || 172;
       camera.aspect = nW / nH;
       camera.updateProjectionMatrix();
       renderer.setSize(nW, nH);
@@ -1377,37 +1527,44 @@ document.addEventListener('DOMContentLoaded',()=>{
   initTheme();
   initLang();
   initReveal();
-  initTestimonials();
+  // initTestimonials() removed — static testimonials section removed from index.html
   initForm();
   initWaFab();
   initFilter();
 
-  /* ── Background video fade-in ──
-     The <video> starts with opacity:0.
-     Once enough data is loaded we fade it in smoothly.
-     This prevents a flash of black/white before the video starts. */
+  /* ── Global tab-visibility pause ──
+     Stops ALL Three.js renders when user switches tab.
+     Each individual scene already has its own paused flag;
+     this fires the event so they all react at once.        */
+  document.addEventListener('visibilitychange', () => {
+    document.dispatchEvent(new CustomEvent(
+      document.hidden ? 'scenePause' : 'sceneResume'
+    ));
+  });
+
+  /* ── Background video lazy load + fade-in ── */
   const heroBgVideo = document.getElementById('heroBgVideo');
   if(heroBgVideo){
-    // 'canplaythrough' fires when enough is buffered to play without stopping
+    // Load video only after page has finished rendering (idle)
+    if('requestIdleCallback' in window){
+      requestIdleCallback(() => {
+        heroBgVideo.load();
+      });
+    } else {
+      setTimeout(() => heroBgVideo.load(), 800);
+    }
     heroBgVideo.addEventListener('canplaythrough', () => {
       heroBgVideo.classList.add('loaded');
     }, { once: true });
-    // Fallback: if event never fires (e.g. no video file), just show nothing
-    // and the CSS background gradient shows through naturally.
   }
 
-  /* ── Product card video toggle ──
-     Injects a video element + 3D/Video toggle pill into every
-     .prod-viewer-wrap that has a data-video-src attribute.
-     ► HOW TO ADD A VIDEO TO A PRODUCT CARD:
-       1. Add a data-video-src="video/my-product.mp4" attr to the <article>
-       2. Put the MP4 file in a /video/ folder in your project
-       3. Save — the toggle pill appears automatically              */
+  /* ── Card video toggle ── */
   initCardVideoToggle();
 
   if(typeof THREE!=='undefined'){
     initHeroScene();
     setTimeout(()=>initHeroProducts(),  100);
+    setTimeout(()=>initHeroParallax(),  150);
     setTimeout(()=>initProductViewers(), 300);
     setTimeout(()=>initCtaOrb(), 500);
     setTimeout(()=>initGalleryScenes(), 700);
