@@ -1195,90 +1195,108 @@ function initWaFab(){
 
 /* ─── 16. INIT ─── */
 /* ─────────────────────────────────────────────────
-   HERO PARALLAX + 3D TILT
-   ▸ Mouse moves hero-left text very slightly
-   ▸ Hero product grid shifts in opposite direction
-   ▸ Individual cards get a CSS 3D tilt based on
-     mouse position within the card (pointer:fine only)
-   ▸ Disabled on touch/mobile — zero cost there
+   HERO PARALLAX — QA fixed version
+   Bugs fixed vs previous:
+   ▸ RAF leak: sceneResume was spawning a new loop
+     without cancelling the previous one. Now uses
+     a single loop with an internal paused flag.
+   ▸ Orb transform conflict: CSS keyframes (orbDrift)
+     own the orb element's transform. Parallax now
+     moves orbs via a wrapper <div> injected once,
+     so keyframe + parallax transforms never fight.
+   ▸ Removed duplicate parallaxLoop definition.
 ───────────────────────────────────────────────── */
 function initHeroParallax(){
-  /* Only run on devices with a real pointer (desktop) */
   if(!window.matchMedia('(pointer:fine)').matches) return;
 
-  const heroEl   = document.getElementById('hero');
-  const leftEl   = document.querySelector('.hero-left');
-  const rightEl  = document.querySelector('.hero-right');
-  const orb1     = document.querySelector('.hero-orb-1');
-  const orb2     = document.querySelector('.hero-orb-2');
+  const heroEl  = document.getElementById('hero');
+  const leftEl  = document.querySelector('.hero-left');
+  const rightEl = document.querySelector('.hero-right');
   if(!heroEl || !leftEl || !rightEl) return;
 
-  /* Smoothed mouse normalised to -1 → +1 within hero */
-  let mx = 0, my = 0;           /* raw targets */
-  let smx = 0, smy = 0;         /* smoothed values */
-  let rafId = null;
+  /* Wrap each orb in a plain div so we can move the
+     wrapper with JS while CSS keyframes animate the
+     orb itself — no transform conflict.             */
+  ['.hero-orb-1', '.hero-orb-2'].forEach(sel => {
+    const orb = document.querySelector(sel);
+    if(!orb || orb.parentElement.classList.contains('orb-parallax-wrap')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'orb-parallax-wrap';
+    /* Wrapper is position:absolute, sized to match orb position */
+    wrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:3;';
+    orb.parentElement.insertBefore(wrap, orb);
+    wrap.appendChild(orb);
+    /* Restore orb's own positioning inside wrapper */
+    orb.style.position = 'absolute';
+  });
+
+  const orb1Wrap = document.querySelector('.hero-orb-1')?.parentElement;
+  const orb2Wrap = document.querySelector('.hero-orb-2')?.parentElement;
+
+  let mx = 0, my = 0;
+  let smx = 0, smy = 0;
+  let rafPaused = false;
 
   heroEl.addEventListener('mousemove', e => {
-    const r  = heroEl.getBoundingClientRect();
-    mx = ((e.clientX - r.left) / r.width)  * 2 - 1;  /* -1 left  → +1 right */
-    my = ((e.clientY - r.top)  / r.height) * 2 - 1;  /* -1 top   → +1 bottom */
+    const r = heroEl.getBoundingClientRect();
+    mx = ((e.clientX - r.left) / r.width)  * 2 - 1;
+    my = ((e.clientY - r.top)  / r.height) * 2 - 1;
   }, { passive: true });
 
-  /* Reset smoothly when mouse leaves hero */
   heroEl.addEventListener('mouseleave', () => { mx = 0; my = 0; }, { passive: true });
 
-  /* Animation loop — lerps smoothed values toward targets */
+  /* Single RAF loop — internal pause flag, no leak */
   (function parallaxLoop(){
-    rafId = requestAnimationFrame(parallaxLoop);
+    requestAnimationFrame(parallaxLoop);
+    if(rafPaused) return;
 
-    /* Very gentle smoothing factor — feels silky */
     smx = lerp(smx, mx, 0.055);
     smy = lerp(smy, my, 0.055);
 
-    /* Left panel: drifts very slightly with mouse
-       Max: ±5px X, ±3px Y — barely perceptible    */
-    leftEl.style.transform =
-      `translate(${smx * 5}px, ${smy * 3}px)`;
+    /* Skip writes if values haven't meaningfully changed
+       (avoids style recalc every frame when mouse is still) */
+    if(Math.abs(smx - mx) < 0.0008 && Math.abs(smy - my) < 0.0008 &&
+       Math.abs(mx) < 0.001 && Math.abs(my) < 0.001) return;
 
-    /* Right panel: moves opposite direction + more
-       Max: ±-8px X, ±-5px Y — cards feel closer   */
-    rightEl.style.transform =
-      `translate(${smx * -8}px, ${smy * -5}px)`;
-
-    /* Orbs: slow drift amplified slightly */
-    if(orb1) orb1.style.transform =
-      `translate(${smx * 18}px, ${smy * 12}px) scale(1)`;
-    if(orb2) orb2.style.transform =
-      `translate(${smx * -12}px, ${smy * -8}px) scale(1)`;
+    /* Left panel: ±5px X, ±3px Y */
+    leftEl.style.transform  = `translate(${(smx * 5).toFixed(2)}px,${(smy * 3).toFixed(2)}px)`;
+    /* Right panel: opposite direction */
+    rightEl.style.transform = `translate(${(smx * -8).toFixed(2)}px,${(smy * -5).toFixed(2)}px)`;
+    /* Orb wrappers — keyframe runs on child orb element */
+    if(orb1Wrap) orb1Wrap.style.transform = `translate(${(smx * 16).toFixed(2)}px,${(smy * 10).toFixed(2)}px)`;
+    if(orb2Wrap) orb2Wrap.style.transform = `translate(${(smx * -11).toFixed(2)}px,${(smy * -7).toFixed(2)}px)`;
   })();
 
-  /* Stop when tab hidden */
-  document.addEventListener('scenePause',  () => { cancelAnimationFrame(rafId); });
-  document.addEventListener('sceneResume', () => {
-    (function parallaxLoop(){
-      rafId = requestAnimationFrame(parallaxLoop);
-      smx = lerp(smx, mx, 0.055);
-      smy = lerp(smy, my, 0.055);
-      leftEl.style.transform  = `translate(${smx * 5}px, ${smy * 3}px)`;
-      rightEl.style.transform = `translate(${smx * -8}px, ${smy * -5}px)`;
-      if(orb1) orb1.style.transform = `translate(${smx * 18}px, ${smy * 12}px) scale(1)`;
-      if(orb2) orb2.style.transform = `translate(${smx * -12}px, ${smy * -8}px) scale(1)`;
-    })();
-  });
+  /* Pause/resume — just toggle flag, no new RAF spawned */
+  document.addEventListener('scenePause',  () => { rafPaused = true; });
+  document.addEventListener('sceneResume', () => { rafPaused = false; });
 }
 
 /* ─────────────────────────────────────────────────
-   HERO PRODUCT MINI-SCENES (upgraded)
-   ▸ Same Three.js scenes as before
-   ▸ Added: 3D tilt based on mouse position in card
-   ▸ Added: point-light follows mouse X within card
-   ▸ Added: smooth tilt-reset on mouseleave
-   ▸ Added: pause on global scenePause event
+   HERO PRODUCT MINI-SCENES — QA fixed version
+   Bugs fixed vs previous:
+   ▸ Dead vars: targetRotY / currentRotY removed
+   ▸ Event listener accumulation: scenePause/Resume
+     listeners were added once per card (4×2 = 8).
+     Now added once globally, sets a module-level
+     flag read by all card loops.
+   ▸ Transform ownership: CSS float uses translateY,
+     JS tilt uses group.rotation — they live on
+     different objects so there's no fight. Card's
+     CSS transform is NOT set by JS — only Three.js
+     group transform is set, inside the canvas.
+   ▸ Card clickability: hpc-link z-index:5 ensures
+     the <a> overlay stays above canvas at all times.
 ───────────────────────────────────────────────── */
+
+/* Module-level pause flag shared across all card loops */
+let _hpcPaused = false;
+document.addEventListener('scenePause',  () => { _hpcPaused = true;  });
+document.addEventListener('sceneResume', () => { _hpcPaused = false; });
+
 function initHeroProducts(){
   if(typeof THREE === 'undefined') return;
 
-  /* Only do tilt on pointer devices */
   const canTilt = window.matchMedia('(pointer:fine)').matches;
 
   const HPC_CONFIG = {
@@ -1299,8 +1317,8 @@ function initHeroProducts(){
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
-      alpha: true,
-      antialias: true,
+      alpha:           true,
+      antialias:       true,
       powerPreference: 'high-performance',
     });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
@@ -1315,7 +1333,6 @@ function initHeroProducts(){
     const dl = new THREE.DirectionalLight(0xffffff, 1.1);
     dl.position.set(2, 3, 2); scene.add(dl);
 
-    /* Point light — will track mouse X for dynamic rim lighting */
     const pl = new THREE.PointLight(new THREE.Color(cfg.color), 2.0, 8);
     pl.position.set(-1.5, 1, 1); scene.add(pl);
 
@@ -1323,88 +1340,68 @@ function initHeroProducts(){
     scene.add(group);
     cfg.build(group);
 
-    /* State */
+    /* ── Per-card state ── */
     let isHovered    = false;
-    let targetScale  = 1,  currentScale  = 1;
-    let targetRotX   = 0,  currentRotX   = 0;  /* tilt X */
-    let targetRotY   = 0,  currentRotY   = 0;  /* base Y spin */
-    let targetLightX = -1.5;                    /* light tracks mouse */
-    let autoRotY     = 0;                       /* accumulated auto spin */
-    let paused       = false;
-    const clock = new THREE.Clock();
+    let targetScale  = 1, currentScale  = 1;
+    let targetRotX   = 0, currentRotX   = 0;   /* vertical tilt */
+    let targetLightX = -1.5;
+    let autoRotY     = 0;                        /* spin accumulator */
+    const clock      = new THREE.Clock();
 
-    /* ── Mouse enter / leave ── */
-    card.addEventListener('mouseenter', () => {
-      isHovered   = true;
-      targetScale = 1.08;
-    });
+    /* ── Hover ── */
+    card.addEventListener('mouseenter', () => { isHovered = true;  targetScale = 1.08; });
     card.addEventListener('mouseleave', () => {
       isHovered    = false;
       targetScale  = 1.0;
-      targetRotX   = 0;    /* tilt resets to neutral */
-      targetLightX = -1.5; /* light resets to default */
+      targetRotX   = 0;
+      targetLightX = -1.5;
     });
 
-    /* ── 3D tilt on mouse move within card ──
-       Calculates mouse position relative to card centre,
-       maps to a gentle rotateX/Y for depth illusion.    */
+    /* ── 3D tilt — pointer devices only ── */
     if(canTilt){
       canvas.addEventListener('mousemove', e => {
         const r  = canvas.getBoundingClientRect();
-        const nx = ((e.clientX - r.left) / r.width)  * 2 - 1; /* -1..+1 */
+        const nx = ((e.clientX - r.left) / r.width)  * 2 - 1;
         const ny = ((e.clientY - r.top)  / r.height) * 2 - 1;
-
-        /* Max tilt: ±8° — subtle but clear */
-        targetRotX   = -ny * 0.14;   /* radians ≈ ±8° */
-        targetLightX = nx * 2.5;     /* light follows mouse */
+        targetRotX   = -ny * 0.12;   /* ±~7° — subtle */
+        targetLightX = nx * 2.2;
       }, { passive: true });
     }
 
-    /* ── Intersection + global pause ── */
+    /* ── Intersection observer ── */
     let active = false;
     new IntersectionObserver(
       e => { active = e[0].isIntersecting; },
       { threshold: 0.1 }
     ).observe(card);
 
-    document.addEventListener('scenePause',  () => { paused = true; });
-    document.addEventListener('sceneResume', () => {
-      paused = false;
-      clock.getDelta(); /* discard jump */
-    });
-
     /* ── Render loop ── */
     (function loop(){
       requestAnimationFrame(loop);
-      if(!active || paused) return;
+      if(!active || _hpcPaused) return;
 
       const t = clock.getElapsedTime();
 
-      /* Auto spin — faster on hover */
-      autoRotY += isHovered ? 0.022 : 0.006;
-
-      /* Smooth tilt lerp */
-      currentRotX = lerp(currentRotX, targetRotX, 0.09);
-
-      /* Apply combined rotation:
-         autoRotY = horizontal spin
-         currentRotX = vertical tilt from mouse   */
+      /* Spin — Three.js group rotation, separate from CSS card transform */
+      autoRotY += isHovered ? 0.020 : 0.006;
       group.rotation.y = autoRotY;
+
+      /* Tilt — smooth lerp toward target */
+      currentRotX      = lerp(currentRotX, targetRotX, 0.08);
       group.rotation.x = currentRotX;
 
-      /* Vertical float — paused during tilt? No, continues for life */
-      group.position.y = Math.sin(t * 0.7) * 0.08;
+      /* Float bob on Three.js object — CSS float animates the card element */
+      group.position.y = Math.sin(t * 0.72) * 0.07;
 
-      /* Scale lerp */
+      /* Scale */
       currentScale = lerp(currentScale, targetScale, 0.09);
       group.scale.setScalar(currentScale);
 
-      /* Light tracks mouse smoothly */
+      /* Dynamic lighting */
       pl.position.x = lerp(pl.position.x, targetLightX, 0.08);
-      pl.intensity  = 2.0 + Math.sin(t * 1.1) * 0.4;
-
-      /* On hover: boost light intensity slightly */
-      if(isHovered) pl.intensity = lerp(pl.intensity, 3.2, 0.05);
+      pl.intensity  = isHovered
+        ? lerp(pl.intensity, 3.0, 0.05)
+        : 2.0 + Math.sin(t * 1.1) * 0.4;
 
       renderer.render(scene, camera);
     })();

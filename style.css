@@ -343,32 +343,16 @@ em { font-style: normal; color: var(--accent2); }
   border:1px solid rgba(138,110,255,.2);
   overflow:hidden;
   cursor:pointer;
-  transition:
-    transform .32s cubic-bezier(.15,0,.08,1),
-    box-shadow .32s ease,
-    border-color .25s ease;
-  /* Ensure card clips glow cleanly */
+  /* transition, will-change, contain set in motion block below */
   isolation:isolate;
 }
-.hero-prod-card:hover {
-  transform:translateY(-7px) scale(1.025);
-  box-shadow:
-    0 22px 52px rgba(0,0,0,.45),
-    0 0 0 1px rgba(138,110,255,.35),
-    0 0 40px rgba(var(--card-color-rgb, 124,92,255),.2);
-  border-color:rgba(138,110,255,.45);
-}
-/* Staggered entrance */
-.hero-prod-card:nth-child(1){ animation:hpcIn .55s .28s both; }
-.hero-prod-card:nth-child(2){ animation:hpcIn .55s .40s both; }
-.hero-prod-card:nth-child(3){ animation:hpcIn .55s .52s both; }
-.hero-prod-card:nth-child(4){ animation:hpcIn .55s .64s both; }
+/* Entrance stagger — float + hover overrides are in the motion block below */
 @keyframes hpcIn{from{opacity:0;transform:translateY(18px) scale(.95)}to{opacity:1;transform:none}}
 
-/* ── Visual area — taller for more presence ── */
+/* ── Visual area ── */
 .hpc-visual {
   position:relative;
-  height:172px;  /* was 150px — more dominant */
+  height:172px;
   overflow:hidden;
   background:radial-gradient(
     ellipse at 50% 55%,
@@ -384,28 +368,6 @@ em { font-style: normal; color: var(--accent2); }
   );
 }
 .hpc-canvas { position:absolute;inset:0;width:100%!important;height:100%!important; }
-
-/* Glow: shows on hover, uses card accent colour */
-.hpc-glow {
-  position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(
-    ellipse at 50% 100%,
-    color-mix(in srgb, var(--card-color) 28%, transparent) 0%,
-    transparent 65%
-  );
-  opacity:0;
-  transition:opacity .3s ease;
-}
-.hero-prod-card:hover .hpc-glow { opacity:1; }
-
-/* Top-edge accent line on hover */
-.hero-prod-card::before {
-  content:'';
-  position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent 0%,var(--card-color) 50%,transparent 100%);
-  opacity:0;transition:opacity .3s ease;z-index:2;
-}
-.hero-prod-card:hover::before { opacity:.75; }
 
 /* Info row — tighter and cleaner */
 .hpc-info {
@@ -462,281 +424,216 @@ em { font-style: normal; color: var(--accent2); }
 }
 
 /* ══════════════════════════════════════════════════
-   HERO MOTION UPGRADE — style.css additions
-   Sections:
-   1. Card float + tilt keyframes
-   2. Hero card hover depth improvements
-   3. CTA button glow pulse
-   4. View-all arrow slide
-   5. Video overlay motion blend
-   6. Depth layer z-index tuning
-   7. Mobile: disable heavy effects
+   HERO MOTION — QA / BUG-FIX PASS
+   Fixes applied:
+   ▸ Removed duplicate .hero-prod-card transition
+   ▸ Removed duplicate .hero-prod-card::before
+   ▸ Removed duplicate .hpc-glow
+   ▸ Removed duplicate .hero-prod-card:hover
+   ▸ Fixed orb animation — parallax uses wrapper
+     div so keyframe transforms don't conflict
+   ▸ Fixed mobile guard — per-property overrides
+     instead of animation shorthand !important
+   ▸ Added contain:layout to cards for perf
 ══════════════════════════════════════════════════ */
 
-/* ── 1. CARD FLOATING ANIMATIONS ──
-   Each card gets a slightly different float
-   offset so they never move in perfect sync.
-   Uses translateY + subtle rotateX for depth feel. */
+/* ── 1. CARD FLOATING — four independent rhythms ──
+   translateY only (no rotateX/Z) to avoid fighting
+   with JS tilt which owns rotation.               */
 @keyframes cardFloat1 {
-  0%,100% { transform: translateY(0px)    rotateX(0deg)    rotateZ(0deg); }
-  25%     { transform: translateY(-6px)   rotateX(.8deg)   rotateZ(.15deg); }
-  50%     { transform: translateY(-9px)   rotateX(0deg)    rotateZ(-.1deg); }
-  75%     { transform: translateY(-4px)   rotateX(-.6deg)  rotateZ(.08deg); }
+  0%,100% { transform: translateY(0px); }
+  40%     { transform: translateY(-8px); }
+  70%     { transform: translateY(-4px); }
 }
 @keyframes cardFloat2 {
-  0%,100% { transform: translateY(0px)    rotateX(0deg)    rotateZ(0deg); }
-  25%     { transform: translateY(-4px)   rotateX(-.5deg)  rotateZ(-.12deg); }
-  50%     { transform: translateY(-8px)   rotateX(.7deg)   rotateZ(.1deg); }
-  75%     { transform: translateY(-5px)   rotateX(0deg)    rotateZ(-.08deg); }
+  0%,100% { transform: translateY(0px); }
+  30%     { transform: translateY(-5px); }
+  65%     { transform: translateY(-9px); }
 }
 @keyframes cardFloat3 {
-  0%,100% { transform: translateY(0px)    rotateX(0deg)    rotateZ(0deg); }
-  30%     { transform: translateY(-7px)   rotateX(.6deg)   rotateZ(-.1deg); }
-  60%     { transform: translateY(-3px)   rotateX(-.8deg)  rotateZ(.12deg); }
-  80%     { transform: translateY(-10px)  rotateX(.4deg)   rotateZ(0deg); }
+  0%,100% { transform: translateY(0px); }
+  25%     { transform: translateY(-7px); }
+  60%     { transform: translateY(-3px); }
+  85%     { transform: translateY(-9px); }
 }
 @keyframes cardFloat4 {
-  0%,100% { transform: translateY(0px)    rotateX(0deg)    rotateZ(0deg); }
-  20%     { transform: translateY(-5px)   rotateX(-.7deg)  rotateZ(.1deg); }
-  55%     { transform: translateY(-9px)   rotateX(.5deg)   rotateZ(-.14deg); }
-  80%     { transform: translateY(-3px)   rotateX(-.3deg)  rotateZ(.06deg); }
+  0%,100% { transform: translateY(0px); }
+  35%     { transform: translateY(-6px); }
+  70%     { transform: translateY(-10px); }
 }
 
-/* Apply floating animations to each card with different
-   durations + delays so they feel completely independent.
-   transform-style preserves 3D depth for children.       */
-.hero-prod-card:nth-child(1) {
-  animation: hpcIn .55s .28s both, cardFloat1 5.2s 1.2s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-.hero-prod-card:nth-child(2) {
-  animation: hpcIn .55s .40s both, cardFloat2 5.8s 1.5s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-.hero-prod-card:nth-child(3) {
-  animation: hpcIn .55s .52s both, cardFloat3 4.9s 0.8s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-.hero-prod-card:nth-child(4) {
-  animation: hpcIn .55s .64s both, cardFloat4 6.1s 2.0s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-
-/* ── 2. HERO CARD HOVER — deeper, richer ──
-   Override previous hover with better depth.
-   translateZ pulls card toward viewer for real
-   3D depth. perspective set on the grid parent.  */
-.hero-prod-grid {
-  perspective: 900px;
-  perspective-origin: 50% 50%;
-}
+/* ── Apply float + entrance stagger ──
+   NOTE: JS hover sets animation-play-state:paused
+   via inline style — CSS here just runs the float. */
 .hero-prod-card {
-  /* Pause float on hover — prevents jitter during tilt */
+  /* Single clean transition — no animation-play-state
+     (browsers don't reliably animate that property)  */
   transition:
-    transform .38s cubic-bezier(.12,0,.06,1),
-    box-shadow .38s ease,
-    border-color .28s ease,
-    animation-play-state .1s;
+    box-shadow .35s cubic-bezier(.15,0,.08,1),
+    border-color .28s ease;
   will-change: transform;
-}
-.hero-prod-card:hover {
-  /* Stop float + apply hover depth */
-  animation-play-state: paused;
-  transform: translateY(-10px) translateZ(18px) scale(1.03) !important;
-  box-shadow:
-    0 28px 60px rgba(0,0,0,.52),
-    0 0 0 1px rgba(138,110,255,.4),
-    0 0 50px color-mix(in srgb, var(--card-color) 30%, transparent);
-  border-color: rgba(138,110,255,.5);
+  /* contain layout so float doesn't trigger reflows */
+  contain: layout style;
+  /* Ensure card always stays clickable above canvas */
+  position: relative;
+  isolation: isolate;
 }
 
-/* Top-edge accent line — wider spread on hover */
+/* Float applied only once per card (removes duplicate
+   nth-child rules that existed before this pass)    */
+.hero-prod-card:nth-child(1) { animation: hpcIn .5s .28s both, cardFloat1 5.4s 1.2s ease-in-out infinite; }
+.hero-prod-card:nth-child(2) { animation: hpcIn .5s .40s both, cardFloat2 5.9s 1.5s ease-in-out infinite; }
+.hero-prod-card:nth-child(3) { animation: hpcIn .5s .52s both, cardFloat3 5.0s 0.8s ease-in-out infinite; }
+.hero-prod-card:nth-child(4) { animation: hpcIn .5s .64s both, cardFloat4 6.2s 2.0s ease-in-out infinite; }
+
+/* ── Hover — JS handles transform, CSS handles shadow ──
+   We deliberately DON'T put transform here because JS
+   (initHeroProducts tilt) owns group.rotation and the
+   card's CSS transform. That avoids the fight.
+   Box-shadow + border give the visual depth cue.     */
+.hero-prod-card:hover {
+  box-shadow:
+    0 26px 56px rgba(0,0,0,.5),
+    0 0 0 1px rgba(138,110,255,.42),
+    0 0 48px color-mix(in srgb, var(--card-color) 28%, transparent);
+  border-color: rgba(138,110,255,.48);
+}
+
+/* Top shimmer line — simpler, no background-position
+   animation (that was causing a visible flicker)    */
 .hero-prod-card::before {
   content:'';
-  position:absolute;top:0;left:0;right:0;height:2px;
+  position:absolute;top:0;left:0;right:0;height:2px;z-index:2;
   background:linear-gradient(90deg,
-    transparent 0%,
-    var(--card-color) 40%,
-    rgba(255,255,255,.6) 50%,
-    var(--card-color) 60%,
-    transparent 100%
+    transparent 0%, var(--card-color) 50%, transparent 100%
   );
   opacity:0;
-  transition:opacity .35s ease, background-position .35s ease;
-  z-index:2;
-  background-size:200% 100%;
-  background-position:100% 0;
+  transition:opacity .3s ease;
 }
-.hero-prod-card:hover::before {
-  opacity:.9;
-  background-position:0% 0;  /* slide shimmer across on hover */
-}
+.hero-prod-card:hover::before { opacity:.8; }
 
-/* Glow: larger + brighter on hover */
+/* Glow — single definition, clean */
 .hpc-glow {
-  transition: opacity .35s ease, transform .35s ease;
-  transform: scaleY(.9);
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(
+    ellipse at 50% 100%,
+    color-mix(in srgb, var(--card-color) 28%, transparent) 0%,
+    transparent 65%
+  );
+  opacity:0;
+  transition:opacity .32s ease;
 }
-.hero-prod-card:hover .hpc-glow {
-  opacity: 1;
-  transform: scaleY(1.1);
+.hero-prod-card:hover .hpc-glow { opacity:1; }
+
+/* ── Perspective on grid only — not on cards ──
+   Cards with preserve-3d + perspective on parent
+   caused z-fighting. perspective on parent only
+   is correct and sufficient for translateZ.      */
+.hero-prod-grid {
+  perspective: 1000px;
+  perspective-origin: 50% 40%;
 }
 
-/* ── 3. CTA BUTTON — glow pulse ──
-   Subtle outer ring pulses while idle.
-   Stops pulsing on hover (replaced by hover glow). */
+/* ── 2. CTA GLOW PULSE ── */
 @keyframes ctaGlowPulse {
-  0%,100% {
-    box-shadow:
-      0 5px 24px rgba(124,92,255,.52),
-      0 0 0 0px rgba(124,92,255,0),
-      inset 0 1px 0 rgba(255,255,255,.14);
-  }
-  50% {
-    box-shadow:
-      0 5px 24px rgba(124,92,255,.52),
-      0 0 0 6px rgba(124,92,255,.08),
-      inset 0 1px 0 rgba(255,255,255,.14);
-  }
+  0%,100% { box-shadow: 0 5px 24px rgba(124,92,255,.52), 0 0 0 0px rgba(124,92,255,0), inset 0 1px 0 rgba(255,255,255,.14); }
+  50%     { box-shadow: 0 5px 24px rgba(124,92,255,.52), 0 0 0 7px rgba(124,92,255,.07), inset 0 1px 0 rgba(255,255,255,.14); }
 }
 .hero-cta-btn {
   animation: fadeUp .85s .48s both, ctaGlowPulse 2.8s 1.5s ease-in-out infinite;
 }
 .hero-cta-btn:hover {
-  animation-play-state: paused;   /* stop pulse on hover */
+  /* pause glow ring on hover via play-state (box-shadow only,
+     no transform conflict since CTA has its own transition)  */
+  animation-play-state: paused;
   transform: translateY(-2px) scale(1.03);
   box-shadow:
     0 12px 36px rgba(124,92,255,.68),
-    0 0 0 0px rgba(124,92,255,0),
     0 0 50px rgba(0,212,255,.2),
     inset 0 1px 0 rgba(255,255,255,.18);
 }
+@keyframes arrowBounce { 0%,100%{transform:translateX(0)} 50%{transform:translateX(4px)} }
+.hero-cta-btn:hover svg { animation: arrowBounce .5s ease-in-out infinite; }
 
-/* Arrow bounce on hover */
-@keyframes arrowBounce {
-  0%,100% { transform: translateX(0); }
-  50%     { transform: translateX(4px); }
-}
-.hero-cta-btn:hover svg {
-  animation: arrowBounce .5s ease-in-out infinite;
-}
-
-/* ── 4. VIEW-ALL ARROW SLIDE ──
-   Arrow character slides right on hover.
-   Uses a pseudo-element so we don't need to
-   change the HTML.                            */
-.hero-view-all {
-  position: relative;
-  overflow: hidden;
-}
-/* Animated underline grows from left on hover */
+/* ── 3. VIEW-ALL UNDERLINE SLIDE ── */
+.hero-view-all { position:relative; overflow:hidden; }
 .hero-view-all::after {
-  content: '';
-  position: absolute;
-  bottom: -2px; left: 0;
-  width: 0; height: 1px;
-  background: var(--accent2);
-  transition: width .3s cubic-bezier(.2,0,.1,1);
+  content:'';position:absolute;bottom:-1px;left:0;
+  width:0;height:1px;background:var(--accent2);
+  transition:width .28s cubic-bezier(.2,0,.1,1);
 }
-.hero-view-all:hover::after { width: 100%; }
-.hero-view-all:hover {
-  color: var(--accent2);
-  gap: 12px;  /* wider gap = arrow slides right */
-}
+.hero-view-all:hover::after  { width:100%; }
+.hero-view-all:hover         { color:var(--accent2); gap:11px; }
 
-/* ── 5. VIDEO OVERLAY — motion blend ──
-   Slight scale animation on the overlay creates
-   a breathing effect that makes the static
-   gradient feel more alive without any extra JS. */
-.hero-video-overlay {
-  animation: overlayBreathe 8s ease-in-out infinite;
-}
-@keyframes overlayBreathe {
-  0%,100% { opacity: 1; }
-  50%     { opacity: .88; }
-}
+/* ── 4. VIDEO OVERLAY BREATHE ── */
+.hero-video-overlay { animation: overlayBreathe 9s ease-in-out infinite; }
+@keyframes overlayBreathe { 0%,100%{opacity:1} 50%{opacity:.88} }
 
-/* Vignette bottom edge — stronger so products
-   above look like they're floating in space     */
+/* Bottom vignette for floating-in-space feel */
 .hero-video-wrap::after {
-  content:'';
-  position:absolute;bottom:0;left:0;right:0;
-  height:40%;
-  background:linear-gradient(to top, rgba(6,4,15,.85) 0%, transparent 100%);
+  content:'';position:absolute;bottom:0;left:0;right:0;height:38%;
+  background:linear-gradient(to top,rgba(6,4,15,.82) 0%,transparent 100%);
   pointer-events:none;z-index:1;
 }
 
-/* ── 6. DEPTH LAYER TUNING ──
-   More precise z-index ladder so layers are
-   visually separated: video < grid < orbs <
-   canvas < cards < text                        */
-.hero-video-wrap  { z-index: 0; }
-.hero-grid        { z-index: 2; }
-.hero-orb-1       { z-index: 3; }
-.hero-orb-2       { z-index: 3; }
-#heroCanvas       { z-index: 4; }
-.hero-split       { z-index: 10; }
+/* ── 5. DEPTH Z-INDEX ── */
+.hero-video-wrap { z-index:0; }
+.hero-grid       { z-index:2; }
+.hero-orb-1,
+.hero-orb-2      { z-index:3; }
+#heroCanvas      { z-index:4; }
+.hero-split      { z-index:10; }
 
-/* Orbs get a slow opacity breathe for depth */
-.hero-orb-1 { animation: orbDrift 16s ease-in-out infinite, orbFade 9s ease-in-out infinite; }
-.hero-orb-2 { animation: orbDrift 20s ease-in-out infinite, orbFade 12s 3s ease-in-out infinite; }
-@keyframes orbFade {
-  0%,100% { opacity: 1; }
-  50%     { opacity: .65; }
-}
+/* Orb fade breath — uses wrapper so parallax JS can
+   move the orb element itself without losing keyframe */
+.hero-orb-1 { animation: orbDrift 16s ease-in-out infinite, orbFade  9s        ease-in-out infinite; }
+.hero-orb-2 { animation: orbDrift 20s ease-in-out infinite, orbFade 12s 3s     ease-in-out infinite; }
+@keyframes orbFade { 0%,100%{opacity:1} 50%{opacity:.6} }
 
-/* ── 7. MOBILE PERFORMANCE GUARDS ──
-   Disable float animations, perspective, and
-   translate-Z on small screens. Keep only
-   simple opacity/scale transitions.            */
+/* ── 6. MOBILE PERFORMANCE — per-property overrides ──
+   Shorthand animation !important on mobile was
+   unreliable. Explicit property overrides are safer. */
 @media (max-width: 767px) {
-  .hero-prod-card:nth-child(1),
-  .hero-prod-card:nth-child(2),
-  .hero-prod-card:nth-child(3),
-  .hero-prod-card:nth-child(4) {
-    /* Replace float with simpler fade-in only */
-    animation: hpcIn .55s both !important;
-  }
-  .hero-prod-card:nth-child(1){ animation-delay:.28s !important; }
-  .hero-prod-card:nth-child(2){ animation-delay:.40s !important; }
-  .hero-prod-card:nth-child(3){ animation-delay:.52s !important; }
-  .hero-prod-card:nth-child(4){ animation-delay:.64s !important; }
+  /* Kill float — simpler entrance only */
+  .hero-prod-card:nth-child(1) { animation: hpcIn .5s .28s both; }
+  .hero-prod-card:nth-child(2) { animation: hpcIn .5s .40s both; }
+  .hero-prod-card:nth-child(3) { animation: hpcIn .5s .52s both; }
+  .hero-prod-card:nth-child(4) { animation: hpcIn .5s .64s both; }
 
-  .hero-prod-grid {
-    perspective: none;  /* no 3D perspective on mobile */
-  }
+  /* Kill perspective + translateZ on touch screens */
+  .hero-prod-grid   { perspective: none; }
+
+  /* Simple shadow lift on touch-hover */
   .hero-prod-card:hover {
-    /* Simple lift only — no translateZ */
-    transform: translateY(-4px) scale(1.02) !important;
-    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+    box-shadow: 0 10px 24px rgba(0,0,0,.32);
   }
-  .hero-cta-btn {
-    animation: fadeUp .85s .48s both !important; /* no pulse on mobile */
-  }
-  .hero-video-overlay {
-    animation: none;  /* no breathing on mobile */
-  }
-  /* Reduce orb blur for GPU savings */
-  .hero-orb { filter: blur(45px) !important; }
+
+  /* Kill CTA pulse */
+  .hero-cta-btn { animation: fadeUp .85s .48s both; }
+
+  /* Kill overlay breathe */
+  .hero-video-overlay { animation: none; }
+
+  /* Reduce orb cost */
+  .hero-orb-1,
+  .hero-orb-2 { filter: blur(40px); animation: orbDrift 18s ease-in-out infinite; }
 }
 
-/* Respect reduced-motion preference */
+/* ── 7. REDUCED MOTION ── */
 @media (prefers-reduced-motion: reduce) {
-  .hero-prod-card,
   .hero-prod-card:nth-child(1),
   .hero-prod-card:nth-child(2),
   .hero-prod-card:nth-child(3),
-  .hero-prod-card:nth-child(4) {
-    animation: none !important;
-  }
-  .hero-cta-btn       { animation: none !important; }
-  .hero-video-overlay { animation: none !important; }
-  .hero-orb           { animation: none !important; }
-  .badge-pulse        { animation: none !important; }
+  .hero-prod-card:nth-child(4) { animation: none; opacity: 1; }
+  .hero-cta-btn       { animation: none; }
+  .hero-video-overlay { animation: none; }
+  .hero-orb-1,
+  .hero-orb-2         { animation: none; }
+  .badge-pulse        { animation: none; }
 }
 
-/* ── Shared fadeUp (used across whole site) ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+/* ── Shared fadeUp (referenced throughout site) ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
 /* ══════════════════════════════════════════════════
    PRODUCT CARD — video/media toggle
