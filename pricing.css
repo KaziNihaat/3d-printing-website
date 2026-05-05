@@ -1,0 +1,630 @@
+/* ═══════════════════════════════════════════════════
+   PRINTCRAFT BD — pricing.css
+   Pricing Calculator section styles.
+   Sections:
+   1. Section container & header
+   2. Calculator card layout
+   3. Step pills (Size / Material / Qty / Finish)
+   4. Size selector cards
+   5. Custom dimension inputs
+   6. Material selector cards
+   7. Quantity stepper
+   8. Finish toggle
+   9. Price result panel
+   10. Breakdown table
+   11. Light mode overrides
+   12. Responsive
+═══════════════════════════════════════════════════ */
+
+/* ── 1. SECTION ── */
+#pricing {
+  background: var(--bg2);
+  padding: 100px 0;
+  position: relative;
+}
+#pricing::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+}
+
+/* ── 2. CALCULATOR CARD ── */
+.calc-wrap {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.calc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* ── 3. STEP HEADER TABS ── */
+.calc-steps {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.calc-steps::-webkit-scrollbar { display: none; }
+
+.calc-step-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 22px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .2s, border-color .2s;
+  cursor: default;
+  flex-shrink: 0;
+}
+.calc-step-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent2);
+}
+.calc-step-tab.done {
+  color: var(--green);
+}
+.calc-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .62rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: background .2s, border-color .2s;
+}
+.calc-step-tab.active .calc-step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.calc-step-tab.done .calc-step-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+
+/* Step panels */
+.calc-panels { padding: 28px; }
+.calc-panel {
+  display: none;
+  animation: calcFadeIn .3s ease;
+}
+.calc-panel.active { display: block; }
+@keyframes calcFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.calc-panel-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+.calc-panel-title span {
+  color: var(--text3);
+  font-size: .78rem;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* ── 4. SIZE SELECTOR ── */
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.size-card {
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  padding: 14px 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .2s, background .2s, transform .18s;
+  position: relative;
+}
+.size-card:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+.size-card.selected {
+  border-color: var(--accent2);
+  background: rgba(124,92,255,.08);
+  box-shadow: 0 0 0 1px var(--accent2);
+}
+.size-card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+  display: block;
+  line-height: 1;
+}
+.size-card-name {
+  display: block;
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.size-card-range {
+  display: block;
+  font-size: .64rem;
+  color: var(--text3);
+}
+/* Check mark on selected */
+.size-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 6px; right: 8px;
+  font-size: .6rem;
+  font-weight: 900;
+  color: var(--accent2);
+}
+
+/* ── 5. CUSTOM DIMENSION INPUTS ── */
+.custom-dims {
+  display: none;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.custom-dims.show { display: flex; animation: calcFadeIn .25s ease; }
+.dim-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.dim-field label {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+}
+.dim-field input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: .88rem;
+  outline: none;
+  font-family: var(--font-body);
+  transition: border-color .2s, box-shadow .2s;
+  width: 100%;
+}
+.dim-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.dim-separator {
+  font-size: .9rem;
+  color: var(--text3);
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+/* ── 6. MATERIAL SELECTOR ── */
+.material-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mat-card {
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  padding: 16px 14px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .18s;
+  position: relative;
+}
+.mat-card:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+.mat-card.selected {
+  border-color: var(--accent2);
+  background: rgba(124,92,255,.08);
+  box-shadow: 0 0 0 1px var(--accent2);
+}
+.mat-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: .62rem;
+  font-weight: 900;
+  color: var(--accent2);
+}
+.mat-icon {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  display: block;
+}
+.mat-name {
+  display: block;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  font-family: var(--font-display);
+}
+.mat-desc {
+  display: block;
+  font-size: .68rem;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.mat-multiplier {
+  display: inline-block;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+  background: rgba(124,92,255,.12);
+  color: var(--accent2);
+  border: 1px solid var(--border2);
+}
+.mat-card.selected .mat-multiplier {
+  background: rgba(124,92,255,.22);
+}
+
+/* ── 7. QUANTITY STEPPER ── */
+.qty-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  overflow: hidden;
+  width: fit-content;
+  margin-bottom: 14px;
+}
+.qty-btn {
+  width: 44px; height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .2s, background .2s;
+  flex-shrink: 0;
+}
+.qty-btn:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface2);
+}
+.qty-btn:disabled { opacity: .3; cursor: not-allowed; }
+.qty-display {
+  min-width: 52px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  padding: 0 4px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  line-height: 44px;
+}
+.qty-note {
+  font-size: .75rem;
+  color: var(--text3);
+  margin-top: 6px;
+}
+
+/* ── 8. FINISH TOGGLE ── */
+.finish-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.finish-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all .2s;
+}
+.finish-chip:hover {
+  border-color: var(--border2);
+  color: var(--text);
+}
+.finish-chip.selected {
+  border-color: var(--accent2);
+  background: rgba(124,92,255,.08);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--accent2);
+}
+.finish-chip-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  flex-shrink: 0;
+}
+.finish-chip.selected .finish-chip-dot {
+  background: var(--accent2);
+  border-color: var(--accent2);
+}
+
+/* Step navigation buttons */
+.calc-nav {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.calc-back-btn {
+  padding: 10px 22px;
+  border-radius: 50px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: var(--font-body);
+}
+.calc-back-btn:hover { background: var(--surface2); color: var(--text); }
+.calc-next-btn {
+  padding: 10px 24px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+  font-family: var(--font-display);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 4px 18px var(--accent-glow);
+}
+.calc-next-btn:hover { transform: translateY(-1px); box-shadow: 0 7px 24px var(--accent-glow); }
+.calc-next-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* ── 9. PRICE RESULT PANEL ── */
+.calc-result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  position: sticky;
+  top: calc(var(--nav-h) + 20px);
+}
+
+.result-header {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.result-header-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+
+/* Big price display */
+.result-price-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+.result-price-symbol {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+.result-price-amount {
+  font-family: var(--font-display);
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all .35s cubic-bezier(.2,0,.1,1);
+}
+.result-price-amount.updating {
+  opacity: .5;
+  transform: scale(.96);
+}
+.result-price-note {
+  font-size: .72rem;
+  color: var(--text3);
+  margin-top: 6px;
+}
+[data-theme="light"] .result-price-amount {
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ── 10. BREAKDOWN TABLE ── */
+.result-body { padding: 18px 24px; }
+
+.breakdown-table {
+  width: 100%;
+  margin-bottom: 18px;
+}
+.breakdown-table td {
+  font-size: .8rem;
+  padding: 6px 0;
+  vertical-align: middle;
+}
+.breakdown-table td:first-child { color: var(--text2); }
+.breakdown-table td:last-child  {
+  text-align: right;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+.breakdown-table .total-row td {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: .88rem;
+  font-weight: 700;
+}
+.breakdown-table .total-row td:last-child {
+  color: var(--accent2);
+  font-size: 1rem;
+}
+
+/* Pending state — before user makes selections */
+.result-pending {
+  text-align: center;
+  padding: 20px 0 8px;
+  color: var(--text3);
+  font-size: .82rem;
+}
+.result-pending-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+
+/* Delivery estimate badge */
+.delivery-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(27,234,138,.08);
+  border: 1px solid rgba(27,234,138,.22);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: .78rem;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.delivery-badge svg { flex-shrink: 0; }
+
+/* WhatsApp CTA */
+.result-cta {
+  width: 100%;
+  padding: 13px;
+  border-radius: 50px;
+  background: #25D366;
+  color: #fff;
+  border: none;
+  font-family: var(--font-display);
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .18s, box-shadow .18s;
+  box-shadow: 0 4px 18px rgba(37,211,102,.35);
+  text-decoration: none;
+}
+.result-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(37,211,102,.5);
+}
+.result-cta:disabled,
+.result-cta.disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Disclaimer */
+.result-disclaimer {
+  font-size: .68rem;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+/* ── 11. LIGHT MODE ── */
+[data-theme="light"] .calc-card         { background: #fff; border-color: rgba(102,68,238,.15); }
+[data-theme="light"] .calc-steps        { border-bottom-color: rgba(102,68,238,.12); }
+[data-theme="light"] .calc-result       { background: #fff; border-color: rgba(102,68,238,.15); }
+[data-theme="light"] .result-header     { border-bottom-color: rgba(102,68,238,.12); }
+[data-theme="light"] .size-card,
+[data-theme="light"] .mat-card          { background: var(--surface2); border-color: rgba(102,68,238,.15); }
+[data-theme="light"] .size-card:hover,
+[data-theme="light"] .mat-card:hover    { background: var(--bg3); border-color: rgba(102,68,238,.25); }
+[data-theme="light"] .size-card.selected,
+[data-theme="light"] .mat-card.selected { background: rgba(102,68,238,.08); border-color: var(--accent2); }
+[data-theme="light"] .qty-row           { background: var(--surface2); border-color: rgba(102,68,238,.15); }
+[data-theme="light"] .qty-display       { border-color: rgba(102,68,238,.12); color: var(--text); }
+[data-theme="light"] .finish-chip       { background: var(--surface2); border-color: rgba(102,68,238,.15); color: var(--text2); }
+[data-theme="light"] .finish-chip.selected { background: rgba(102,68,238,.08); }
+[data-theme="light"] .custom-dims       { background: var(--surface2); border-color: rgba(102,68,238,.12); }
+[data-theme="light"] .dim-field input   { background: #fff; border-color: rgba(102,68,238,.2); color: var(--text); }
+[data-theme="light"] .breakdown-table td:first-child { color: var(--text2); }
+[data-theme="light"] .breakdown-table td:last-child  { color: var(--text); }
+[data-theme="light"] .breakdown-table .total-row td  { border-top-color: rgba(102,68,238,.12); }
+[data-theme="light"] .mat-multiplier    { background: rgba(102,68,238,.08); color: var(--accent); border-color: rgba(102,68,238,.2); }
+[data-theme="light"] #pricing::before  {
+  background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+  opacity: .5;
+}
+
+/* ── 12. RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .calc-wrap { grid-template-columns: 1fr; }
+  .calc-result { position: static; }
+}
+@media (max-width: 640px) {
+  .size-grid         { grid-template-columns: 1fr 1fr; }
+  .material-grid     { grid-template-columns: 1fr; }
+  .calc-panels       { padding: 20px; }
+  .calc-step-tab     { padding: 12px 16px; font-size: .72rem; }
+  .result-price-amount { font-size: 2.6rem; }
+}
+@media (max-width: 380px) {
+  .finish-row        { flex-direction: column; }
+  .calc-nav          { flex-direction: column-reverse; }
+  .calc-next-btn,
+  .calc-back-btn     { width: 100%; justify-content: center; text-align: center; }
+}
